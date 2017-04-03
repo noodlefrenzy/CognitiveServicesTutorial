@@ -6,7 +6,7 @@ Cognitive Services Tutorial for [AI Immersion Workshop 2017](https://blogs.techn
 
 # Goals
 
-The goal of the Cognitive Services track for the AI Immersion Workshop are to give Build attendees the opportunity to build an end-to-end scenario using Cognitive Services and other Microsoft Azure technologies in tandem, proving that the whole is greater than the sum of its parts.
+The goal of the Cognitive Services track for the AI Immersion Workshop is to give Build attendees the opportunity to build an end-to-end scenario using Cognitive Services and other Microsoft Azure technologies in tandem, proving that the whole is greater than the sum of its parts and providing a code-base to build on well after the session is over.
 
 # Scenario
 
