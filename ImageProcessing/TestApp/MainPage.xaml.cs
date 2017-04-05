@@ -11,6 +11,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -36,7 +37,7 @@ namespace TestApp
             this.InitializeComponent();
         }
 
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             // callbacks for core library
             FaceServiceHelper.Throttled = () => Util.ShowToastNotification("The Face API is throttling your requests. Consider upgrading to a Premium Key.");
@@ -50,8 +51,6 @@ namespace TestApp
             EmotionServiceHelper.ApiKey = "";
             VisionServiceHelper.ApiKey = "";
 
-            await FaceListManager.ResetFaceLists();
-
             base.OnNavigatedTo(e);
         }
 
@@ -62,6 +61,9 @@ namespace TestApp
                 FolderPicker folderPicker = new FolderPicker();
                 folderPicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
                 folderPicker.FileTypeFilter.Add(".jpeg");
+                folderPicker.FileTypeFilter.Add(".jpg");
+                folderPicker.FileTypeFilter.Add(".png");
+                folderPicker.FileTypeFilter.Add(".gif");
                 folderPicker.FileTypeFilter.Add(".bmp");
                 StorageFolder folder = await folderPicker.PickSingleFolderAsync();
 
@@ -83,6 +85,8 @@ namespace TestApp
             this.AllResults.Clear();
             this.FilteredResults.Clear();
             this.TagFilters.Clear();
+            this.EmotionFilters.Clear();
+            this.FaceFilters.Clear();
 
             List<ImageInsights> insightsList = new List<ImageInsights>();
 
@@ -107,14 +111,27 @@ namespace TestApp
                 // We will just compute everything again in case of errors
             }
 
+            bool foundErrors = false;
+
             if (!insightsList.Any())
             {
+                // start with fresh face lists
+                await FaceListManager.ResetFaceLists();
+
                 // enumerate through the first 50 files and extract the insights 
                 foreach (var item in (await rootFolder.GetFilesAsync()).Take(50))
                 {
-                    ImageInsights insights = await ImageProcessor.ProcessImageAsync(item.OpenStreamForReadAsync, item.Name);
-                    insightsList.Add(insights);
-                    await AddImageInsightsToViewModel(rootFolder, insights);
+                    try
+                    {
+                        ImageInsights insights = await ImageProcessor.ProcessImageAsync(item.OpenStreamForReadAsync, item.Name);
+                        insightsList.Add(insights);
+                        await AddImageInsightsToViewModel(rootFolder, insights);
+                    }
+                    catch (Exception)
+                    {
+                        // Ignore the error with this image but continue so we try process as many as we can.
+                        foundErrors = true;
+                    }
                 }
 
                 // save to json
@@ -135,6 +152,11 @@ namespace TestApp
             this.EmotionFilters.AddRange(sortedEmotions);
 
             this.progressRing.IsActive = false;
+
+            if (foundErrors)
+            {
+                await new MessageDialog("Error processing some of the photos. We skipped the errors and did what we could.").ShowAsync();
+            }
         }
 
         private async Task AddImageInsightsToViewModel(StorageFolder rootFolder, ImageInsights insights)
