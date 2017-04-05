@@ -16,9 +16,10 @@ namespace TestApp
         public Guid FaceId { get; set; }
         public ImageSource ImageSource { get; set; }
 
-        public FaceFilterViewModel(Guid faceId)
+        public FaceFilterViewModel(Guid faceId, ImageSource croppedFace)
         {
             this.FaceId = faceId;
+            this.ImageSource = croppedFace;
         }
     }
 }

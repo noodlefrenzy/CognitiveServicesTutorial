@@ -10,13 +10,6 @@ namespace ImageProcessingLibrary
 {
     public class ImageProcessor
     {
-        static ImageProcessor()
-        {
-            FaceServiceHelper.ApiKey = "";
-            EmotionServiceHelper.ApiKey = "";
-            VisionServiceHelper.ApiKey = "";
-        }
-
         public static Task<ImageInsights> ProcessImageAsync(Func<Task<Stream>> imageStream, string imageId)
         {
             return Task.Run(async () =>

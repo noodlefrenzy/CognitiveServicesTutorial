@@ -4,19 +4,15 @@ using ServiceHelpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
@@ -35,11 +31,28 @@ namespace TestApp
         public ObservableCollection<FaceFilterViewModel> FaceFilters { get; set; } = new ObservableCollection<FaceFilterViewModel>();
         public ObservableCollection<EmotionFilterViewModel> EmotionFilters { get; set; } = new ObservableCollection<EmotionFilterViewModel>();
 
-        public IEnumerable<string> Tags { get; set; }
-
         public MainPage()
         {
             this.InitializeComponent();
+        }
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            // callbacks for core library
+            FaceServiceHelper.Throttled = () => Util.ShowToastNotification("The Face API is throttling your requests. Consider upgrading to a Premium Key.");
+            EmotionServiceHelper.Throttled = () => Util.ShowToastNotification("The Emotion API is throttling your requests. Consider upgrading to a Premium Key.");
+            VisionServiceHelper.Throttled = () => Util.ShowToastNotification("The Vision API is throttling your requests. Consider upgrading to a Premium Key.");
+            ErrorTrackingHelper.TrackException = (exception, message) => { Debug.WriteLine("ImageProcessingLibrary exception: {0}", message); }; 
+            ErrorTrackingHelper.GenericApiCallExceptionHandler = Util.GenericApiCallExceptionHandler;
+
+            // Enter API Keys here
+            FaceServiceHelper.ApiKey = "";
+            EmotionServiceHelper.ApiKey = "";
+            VisionServiceHelper.ApiKey = "";
+
+            await FaceListManager.ResetFaceLists();
+
+            base.OnNavigatedTo(e);
         }
 
         private async void ProcessImagesClicked(object sender, RoutedEventArgs e)
@@ -96,8 +109,8 @@ namespace TestApp
 
             if (!insightsList.Any())
             {
-                // compute the insights from the images
-                foreach (var item in await rootFolder.GetFilesAsync())
+                // enumerate through the first 50 files and extract the insights 
+                foreach (var item in (await rootFolder.GetFilesAsync()).Take(50))
                 {
                     ImageInsights insights = await ImageProcessor.ProcessImageAsync(item.OpenStreamForReadAsync, item.Name);
                     insightsList.Add(insights);
@@ -143,7 +156,9 @@ namespace TestApp
             {
                 if (!this.FaceFilters.Any(f => f.FaceId == faceInsights.UniqueFaceId))
                 {
-                    this.FaceFilters.Add(new FaceFilterViewModel(faceInsights.UniqueFaceId));
+                    var imageStream = (await (await rootFolder.GetFileAsync(insights.ImageId)).OpenStreamForReadAsync()).AsRandomAccessStream();
+                    ImageSource croppedFaced = await Util.GetCroppedBitmapAsync(imageStream, faceInsights.FaceRectangle);
+                    this.FaceFilters.Add(new FaceFilterViewModel(faceInsights.UniqueFaceId, croppedFaced));
                 }
 
                 if (!this.EmotionFilters.Any(f => f.Emotion == faceInsights.TopEmotion))

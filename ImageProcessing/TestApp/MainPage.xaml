@@ -33,7 +33,10 @@
                 <ListView ItemsSource="{Binding ElementName=mainPage, Path=FaceFilters}" SelectionMode="None" >
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding FaceId}" Checked="FaceFilterChanged" Unchecked="FaceFilterChanged"  />
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Checked="FaceFilterChanged" Unchecked="FaceFilterChanged" Width="30" MinWidth="30"  />
+                                <Image VerticalAlignment="Center" Height="40" Source="{Binding ImageSource}"/>
+                            </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
