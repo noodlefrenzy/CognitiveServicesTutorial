@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="mainPage"
+    RequestedTheme="Dark"
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -19,7 +20,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         
-        <Button Grid.ColumnSpan="2" HorizontalAlignment="Center" Click="ProcessImagesClicked">GO</Button>
+        <Button Grid.ColumnSpan="2" HorizontalAlignment="Center" Click="ProcessImagesClicked" Margin="12">Select Folder</Button>
 
         <ScrollViewer Grid.Row="1">
             <StackPanel  Padding="12,0,0,0" Width="250" Margin="0,0,6,0">
@@ -32,7 +33,19 @@
                 <ListView ItemsSource="{Binding ElementName=mainPage, Path=FaceFilters}" SelectionMode="None" >
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding FaceId}"  />
+                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding FaceId}" Checked="FaceFilterChanged" Unchecked="FaceFilterChanged"  />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <Rectangle Margin="0,48,0,0" Height="1" Fill="Gray" Opacity="0.5"/>
+
+                <TextBlock Text="Emotion" Margin="0,6,0,12" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                <ListView ItemsSource="{Binding ElementName=mainPage, Path=EmotionFilters}" SelectionMode="None">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding Emotion}" Checked="EmotionFilterChanged" Unchecked="EmotionFilterChanged"  />
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
@@ -52,7 +65,6 @@
             </StackPanel>
         </ScrollViewer>
 
-
         <GridView Margin="12" Grid.Row="1" Grid.Column="1" 
                   IsMultiSelectCheckBoxEnabled="False"
                   SelectionMode="None"
@@ -61,11 +73,12 @@
                   >
             <GridView.ItemTemplate>
                 <DataTemplate>
-                    <Image Height="150" Source="{Binding ImageSource}"/>
+                    <Image Height="200" Source="{Binding ImageSource}"/>
                 </DataTemplate>
             </GridView.ItemTemplate>
         </GridView>
 
+        <ProgressRing x:Name="progressRing" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1"/>
 
     </Grid>
 </Page>

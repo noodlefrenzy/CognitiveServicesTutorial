@@ -96,7 +96,7 @@ namespace ServiceHelpers
         {
             try
             {
-                this.AnalysisResult = await VisionServiceHelper.AnalyzeImageAsync(this.GetImageStreamCallback, new VisualFeature[] { VisualFeature.Tags, VisualFeature.Description });
+                this.AnalysisResult = await VisionServiceHelper.AnalyzeImageAsync(this.GetImageStreamCallback, new VisualFeature[] { VisualFeature.Tags /*, VisualFeature.Description */});
             }
             catch (Exception e)
             {
