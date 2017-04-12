@@ -11,6 +11,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Search;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -60,11 +61,7 @@ namespace TestApp
             {
                 FolderPicker folderPicker = new FolderPicker();
                 folderPicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
-                folderPicker.FileTypeFilter.Add(".jpeg");
-                folderPicker.FileTypeFilter.Add(".jpg");
-                folderPicker.FileTypeFilter.Add(".png");
-                folderPicker.FileTypeFilter.Add(".gif");
-                folderPicker.FileTypeFilter.Add(".bmp");
+                folderPicker.FileTypeFilter.Add("*");
                 StorageFolder folder = await folderPicker.PickSingleFolderAsync();
 
                 if (folder != null)
@@ -118,8 +115,10 @@ namespace TestApp
                 // start with fresh face lists
                 await FaceListManager.ResetFaceLists();
 
-                // enumerate through the first 50 files and extract the insights 
-                foreach (var item in (await rootFolder.GetFilesAsync()).Take(50))
+                // enumerate through the first 50 images and extract the insights 
+                QueryOptions fileQueryOptions = new QueryOptions(CommonFileQuery.DefaultQuery, new[] { ".png", ".jpg", ".bmp", ".jpeg", ".gif" });
+                StorageFileQueryResult queryResult = rootFolder.CreateFileQueryWithOptions(fileQueryOptions);
+                foreach (var item in (await queryResult.GetFilesAsync(0, 50)))
                 {
                     try
                     {

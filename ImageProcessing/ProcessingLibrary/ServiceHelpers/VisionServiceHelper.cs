@@ -16,7 +16,7 @@ namespace ServiceHelpers
 
         static VisionServiceHelper()
         {
-            InitializeEmotionService();
+            InitializeVisionService();
         }
 
         public static Action Throttled;
@@ -35,12 +35,12 @@ namespace ServiceHelpers
                 apiKey = value;
                 if (changed)
                 {
-                    InitializeEmotionService();
+                    InitializeVisionService();
                 }
             }
         }
 
-        private static void InitializeEmotionService()
+        private static void InitializeVisionService()
         {
             visionClient = new VisionServiceClient(apiKey);
         }

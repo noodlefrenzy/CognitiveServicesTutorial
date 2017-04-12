@@ -17,6 +17,7 @@ namespace ServiceHelpers
 
     public class FaceListManager
     {
+        private const int MaxFaceListCount = 64;
         private static Dictionary<string, FaceListInfo> faceLists;
 
         public static string FaceListsUserDataFilter { get; set; }
@@ -164,7 +165,7 @@ namespace ServiceHelpers
                     // If possible, let's create a new list now and add the new face to it. If we can't (e.g. we already maxed out on list count), 
                     // let's delete an old list, create a new one and add the new face to it.
 
-                    if (faceLists.Count == 64)
+                    if (faceLists.Count == MaxFaceListCount)
                     {                    
                         // delete oldest face list
                         var oldestFaceList = faceLists.OrderBy(fl => fl.Value.LastMatchTimestamp).FirstOrDefault();
