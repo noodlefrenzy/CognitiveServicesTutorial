@@ -8,9 +8,5 @@ namespace ServiceHelpers
         // callbacks for exception tracking
         public static Action<Exception, string> TrackException { get; set; }
             = (exception, message) => { };
-
-        // callbacks for blocking UI error message
-        public static Func<Exception, string, Task> GenericApiCallExceptionHandler { get; set; }
-            = (ex, errorTitle) => Task.FromResult(0);
     }
 }

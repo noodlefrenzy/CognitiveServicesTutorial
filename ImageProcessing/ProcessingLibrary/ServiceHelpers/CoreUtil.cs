@@ -9,21 +9,6 @@ namespace ServiceHelpers
 {
     public class CoreUtil
     {
-        public static uint MinDetectableFaceCoveragePercentage = 0;
-
-        public static bool IsFaceBigEnoughForDetection(int faceHeight, int imageHeight)
-        {
-            if (imageHeight == 0)
-            {
-                // sometimes we don't know the size of the image, so we assume the face is big enough
-                return true;
-            }
-
-            double faceHeightPercentage = 100 * ((double) faceHeight / imageHeight);
-
-            return faceHeightPercentage >= MinDetectableFaceCoveragePercentage;
-        }
-
         public static Emotion FindFaceClosestToRegion(IEnumerable<Emotion> emotion, FaceRectangle region)
         {
             return emotion?.Where(e => CoreUtil.AreFacesPotentiallyTheSame(e.FaceRectangle, region))
@@ -55,6 +40,5 @@ namespace ServiceHelpers
 
             return false;
         }
-
     }
 }
