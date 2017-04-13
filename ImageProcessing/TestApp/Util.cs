@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Windows.Data.Xml.Dom;
 using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
+using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Notifications;
 using Windows.UI.Popups;
@@ -100,20 +101,29 @@ namespace TestApp
             return pix.DetachPixelData();
         }
 
-        internal static async Task<Stream> ResizePhoto(Stream photo, int height)
+        internal static async Task<Tuple<double, double>> ResizePhoto(Stream photo, int height, StorageFile resultFile)
+        {
+            var resultStream = (await resultFile.OpenStreamForWriteAsync()).AsRandomAccessStream();
+            var result = await ResizePhoto(photo, height, resultStream);
+            resultStream.Dispose();
+
+            return result;
+        }
+
+        private static async Task<Tuple<double, double>> ResizePhoto(Stream photo, int height, IRandomAccessStream resultStream)
         {
             WriteableBitmap wb = new WriteableBitmap(1, 1);
             wb = await wb.FromStream(photo.AsRandomAccessStream());
-            if (wb.PixelHeight <= height)
+
+            int originalWidth = wb.PixelWidth;
+            int originalHeight = wb.PixelHeight;
+
+            if (wb.PixelHeight > height)
             {
-                // no need to resize
-                return photo;
+                wb = wb.Resize((int)(((double)wb.PixelWidth / wb.PixelHeight) * height), height, WriteableBitmapExtensions.Interpolation.Bilinear);
             }
 
-            wb = wb.Resize((int)(((double)wb.PixelWidth / wb.PixelHeight) * height), height, WriteableBitmapExtensions.Interpolation.Bilinear);
-
-            InMemoryRandomAccessStream result = new InMemoryRandomAccessStream();
-            var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, result);
+            var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, resultStream);
 
             encoder.SetPixelData(BitmapPixelFormat.Bgra8,
                                     BitmapAlphaMode.Ignore,
@@ -122,7 +132,7 @@ namespace TestApp
 
             await encoder.FlushAsync();
 
-            return result.AsStream();
+            return new Tuple<double, double>((double)originalWidth / wb.PixelWidth, (double)originalHeight / wb.PixelHeight);
         }
     }
 }

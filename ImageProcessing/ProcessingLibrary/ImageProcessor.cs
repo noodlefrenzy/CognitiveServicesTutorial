@@ -1,4 +1,7 @@
 ﻿using Microsoft.ProjectOxford.Common.Contract;
+using Microsoft.ProjectOxford.Face;
+using Microsoft.ProjectOxford.Face.Contract;
+using Microsoft.ProjectOxford.Vision;
 using ServiceHelpers;
 using System;
 using System.Collections.Generic;
@@ -10,52 +13,70 @@ namespace ImageProcessingLibrary
 {
     public class ImageProcessor
     {
-        public static Task<ImageInsights> ProcessImageAsync(Func<Task<Stream>> imageStream, string imageId)
+        private static FaceAttributeType[] DefaultFaceAttributeTypes = new FaceAttributeType[] { FaceAttributeType.Age, FaceAttributeType.Gender };
+        private static VisualFeature[] DefaultVisualFeatureTypes = new VisualFeature[] { VisualFeature.Tags, VisualFeature.Description };
+
+        public static async Task<ImageInsights> ProcessImageAsync(Func<Task<Stream>> imageStreamCallback, string imageId)
         {
-            return Task.Run(async () =>
+            ImageInsights result = new ImageInsights { ImageId = imageId };
+
+            // trigger computer vision, face and emotion analysis
+            List<Emotion> emotionResult = new List<Emotion>();
+            await Task.WhenAll(AnalyzeImageFeaturesAsync(imageStreamCallback, result), AnalyzeFacesAsync(imageStreamCallback, result), AnalyzeEmotionAsync(imageStreamCallback, emotionResult));
+
+            // Combine emotion and face results based on face rectangle location/size similarity
+            foreach (var faceInsights in result.FaceInsights)
             {
-                ImageAnalyzer analyzer = new ImageAnalyzer(imageStream);
-
-                // trigger vision, face and emotion requests
-                await Task.WhenAll(analyzer.AnalyzeImageAsync(), analyzer.DetectFacesAsync(detectFaceAttributes: true), analyzer.DetectEmotionAsync());
-
-                // trigger face match against previously seen faces
-                await analyzer.FindSimilarPersistedFacesAsync();
-
-                ImageInsights result = new ImageInsights { ImageId = imageId };
-
-                // assign computer vision results
-                result.VisionInsights = new VisionInsights
+                Emotion faceEmotion = CoreUtil.FindFaceClosestToRegion(emotionResult, faceInsights.FaceRectangle);
+                if (faceEmotion != null)
                 {
-                    Caption = analyzer.AnalysisResult.Description?.Captions[0].Text,
-                    Tags = analyzer.AnalysisResult.Tags.Select(t => t.Name).ToArray()
+                    faceInsights.TopEmotion = faceEmotion.Scores.ToRankedList().First().Key;
+                }
+            }
+
+            return result;
+        }
+
+        private static async Task AnalyzeImageFeaturesAsync(Func<Task<Stream>> imageStreamCallback, ImageInsights result)
+        {
+            var imageAnalysisResult = await VisionServiceHelper.AnalyzeImageAsync(imageStreamCallback, DefaultVisualFeatureTypes);
+
+            result.VisionInsights = new VisionInsights
+                {
+                    Caption = imageAnalysisResult.Description.Captions[0].Text,
+                    Tags = imageAnalysisResult.Tags.Select(t => t.Name).ToArray()
+                };
+        }
+
+        private static async Task AnalyzeFacesAsync(Func<Task<Stream>> imageStreamCallback, ImageInsights result)
+        {
+            var faces = await FaceServiceHelper.DetectAsync(imageStreamCallback, returnFaceId: true, returnFaceLandmarks: false, returnFaceAttributes: DefaultFaceAttributeTypes);
+
+            List<FaceInsights> faceInsightsList = new List<FaceInsights>();
+            foreach (Face detectedFace in faces)
+            {
+                FaceInsights faceInsights = new FaceInsights
+                {
+                    FaceRectangle = detectedFace.FaceRectangle,
+                    Age = detectedFace.FaceAttributes.Age,
+                    Gender = detectedFace.FaceAttributes.Gender
                 };
 
-                // assign face api and emotion api results
-                List<FaceInsights> faceInsightsList = new List<FaceInsights>();
-                foreach (var face in analyzer.DetectedFaces)
+                SimilarPersistedFace similarPersistedFace = await FaceListManager.FindSimilarPersistedFaceAsync(imageStreamCallback, detectedFace.FaceId, detectedFace);
+                if (similarPersistedFace != null)
                 {
-                    FaceInsights faceInsights = new FaceInsights { FaceRectangle = face.FaceRectangle };
-
-                    SimilarFaceMatch similarFaceMatch = analyzer.SimilarFaceMatches.FirstOrDefault(s => s.Face.FaceId == face.FaceId);
-                    if (similarFaceMatch != null)
-                    {
-                        faceInsights.UniqueFaceId = similarFaceMatch.SimilarPersistedFace.PersistedFaceId;
-                    }
-
-                    Emotion faceEmotion = CoreUtil.FindFaceClosestToRegion(analyzer.DetectedEmotion, face.FaceRectangle);
-                    if (faceEmotion != null)
-                    {
-                        faceInsights.TopEmotion = faceEmotion.Scores.ToRankedList().First().Key;
-                    }
-
-                    faceInsightsList.Add(faceInsights);
+                    faceInsights.UniqueFaceId = similarPersistedFace.PersistedFaceId;
                 }
 
-                result.FaceInsights = faceInsightsList.ToArray();
+                faceInsightsList.Add(faceInsights);
+            }
 
-                return result;
-            });
+            result.FaceInsights = faceInsightsList.ToArray();
+        }
+
+        private static async Task AnalyzeEmotionAsync(Func<Task<Stream>> imageStreamCallback, List<Emotion> faceEmotions)
+        {
+            faceEmotions.AddRange(await EmotionServiceHelper.RecognizeAsync(imageStreamCallback));
         }
     }
 }

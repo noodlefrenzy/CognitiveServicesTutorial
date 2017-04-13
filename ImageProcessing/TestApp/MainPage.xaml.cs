@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Search;
-using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -42,10 +42,8 @@ namespace TestApp
         {
             // callbacks for core library
             FaceServiceHelper.Throttled = () => Util.ShowToastNotification("The Face API is throttling your requests. Consider upgrading to a Premium Key.");
-            EmotionServiceHelper.Throttled = () => Util.ShowToastNotification("The Emotion API is throttling your requests. Consider upgrading to a Premium Key.");
             VisionServiceHelper.Throttled = () => Util.ShowToastNotification("The Vision API is throttling your requests. Consider upgrading to a Premium Key.");
-            ErrorTrackingHelper.TrackException = (exception, message) => { Debug.WriteLine("ImageProcessingLibrary exception: {0}", message); }; 
-            ErrorTrackingHelper.GenericApiCallExceptionHandler = Util.GenericApiCallExceptionHandler;
+            ErrorTrackingHelper.TrackException = (exception, message) => { Debug.WriteLine("ImageProcessingLibrary exception: {0}", message); };
 
             // Enter API Keys here
             FaceServiceHelper.ApiKey = "";
@@ -71,7 +69,7 @@ namespace TestApp
             }
             catch (Exception ex)
             {
-                await ErrorTrackingHelper.GenericApiCallExceptionHandler(ex, "Error picking the target folder.");
+                await Util.GenericApiCallExceptionHandler(ex, "Error picking the target folder.");
             }
         }
 
@@ -108,8 +106,6 @@ namespace TestApp
                 // We will just compute everything again in case of errors
             }
 
-            bool foundErrors = false;
-
             if (!insightsList.Any())
             {
                 // start with fresh face lists
@@ -122,14 +118,31 @@ namespace TestApp
                 {
                     try
                     {
-                        ImageInsights insights = await ImageProcessor.ProcessImageAsync(item.OpenStreamForReadAsync, item.Name);
+                        // Resize (if needed) in order to reduce network latency and errors due to large files. Then store the result in a temporary file.
+                        StorageFile resizedFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("ImageCollectionInsights.jpg", CreationCollisionOption.GenerateUniqueName);
+                        var resizeTransform = await Util.ResizePhoto(await item.OpenStreamForReadAsync(), 720, resizedFile);
+
+                        // Send the file for processing
+                        ImageInsights insights = await ImageProcessor.ProcessImageAsync(resizedFile.OpenStreamForReadAsync, item.Name);
+
+                        // Delete resized file
+                        await resizedFile.DeleteAsync();
+
+                        // Adjust all FaceInsights coordinates based on the transform function between the original and resized photos
+                        foreach (var faceInsight in insights.FaceInsights)
+                        {
+                            faceInsight.FaceRectangle.Left = (int)(faceInsight.FaceRectangle.Left * resizeTransform.Item1);
+                            faceInsight.FaceRectangle.Top = (int)(faceInsight.FaceRectangle.Top * resizeTransform.Item2);
+                            faceInsight.FaceRectangle.Width = (int)(faceInsight.FaceRectangle.Width * resizeTransform.Item1);
+                            faceInsight.FaceRectangle.Height = (int)(faceInsight.FaceRectangle.Height * resizeTransform.Item2);
+                        }
+
                         insightsList.Add(insights);
                         await AddImageInsightsToViewModel(rootFolder, insights);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        // Ignore the error with this image but continue so we try process as many as we can.
-                        foundErrors = true;
+                        await Util.GenericApiCallExceptionHandler(ex, "Error processing image.");
                     }
                 }
 
@@ -151,17 +164,17 @@ namespace TestApp
             this.EmotionFilters.AddRange(sortedEmotions);
 
             this.progressRing.IsActive = false;
-
-            if (foundErrors)
-            {
-                await new MessageDialog("Error processing some of the photos. We skipped the errors and did what we could.").ShowAsync();
-            }
         }
 
         private async Task AddImageInsightsToViewModel(StorageFolder rootFolder, ImageInsights insights)
         {
-            ImageInsightsViewModel insightsViewModel = new ImageInsightsViewModel(insights, await (await rootFolder.GetFileAsync(insights.ImageId)).OpenStreamForReadAsync());
+            // Load image from file
+            BitmapImage bitmapImage = new BitmapImage();
+            await bitmapImage.SetSourceAsync((await (await rootFolder.GetFileAsync(insights.ImageId)).OpenStreamForReadAsync()).AsRandomAccessStream());
+            bitmapImage.DecodePixelHeight = 360;
 
+            // Create the view models
+            ImageInsightsViewModel insightsViewModel = new ImageInsightsViewModel(insights, bitmapImage);
             this.AllResults.Add(insightsViewModel);
             this.FilteredResults.Add(insightsViewModel);
 

@@ -16,13 +16,10 @@ namespace TestApp
         public ImageInsights Insights { get; set; }
         public ImageSource ImageSource { get; set; }
 
-        public ImageInsightsViewModel(ImageInsights insights, Stream imageStream)
+        public ImageInsightsViewModel(ImageInsights insights, ImageSource imageSource)
         {
             this.Insights = insights;
-
-            BitmapImage bitmapImage = new BitmapImage();
-            bitmapImage.SetSource(imageStream.AsRandomAccessStream());
-            this.ImageSource = bitmapImage;
+            this.ImageSource = imageSource;
         }
     }
 }

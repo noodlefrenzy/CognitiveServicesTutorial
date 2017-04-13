@@ -35,7 +35,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ServiceHelpers\CoreUtil.cs" />
-    <Compile Include="ServiceHelpers\ImageAnalyzer.cs" />
     <Compile Include="VisionInsights.cs" />
     <Compile Include="FaceInsights.cs" />
     <Compile Include="ImageProcessor.cs" />
