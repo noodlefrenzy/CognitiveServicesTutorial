@@ -1,0 +1,14 @@
+﻿{
+  "CognitiveServicesKeys": {
+    "Face": "",
+    "Emotion": "",
+    "Vision": ""
+  },
+  "AzureStorage": {
+    "ConnectionString": ""
+  },
+  "DocumentDB": {
+    "EndpointURI": "",
+    "Key": ""
+  }
+}
