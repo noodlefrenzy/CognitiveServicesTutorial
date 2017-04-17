@@ -18,23 +18,29 @@ namespace TestCLI
         static void Main(string[] args)
         {
             var app = new CommandLineApplication(throwOnUnexpectedArg: false);
+            var forceUpdate = app.Option("-force", "Use to force update even if file has already been added.",
+                CommandOptionType.NoValue);
+            var settingsFile = app.Option("-settings",
+                "The settings file (optional, will use embedded resource settings.json if not set)",
+                CommandOptionType.SingleValue);
             var dirs = app.Option("-process", "The directory to process", CommandOptionType.MultipleValue);
             var q = app.Option("-query", "The query to run", CommandOptionType.SingleValue);
             app.HelpOption("-? | -h | --help");
             app.OnExecute(() =>
             {
+                string settings = settingsFile.HasValue() ? settingsFile.Value() : null;
                 if (dirs != null && dirs.Values.Any())
                 {
-                    InitializeAsync().Wait();
+                    InitializeAsync(settings).Wait();
                     foreach (var dir in dirs.Values)
                     {
-                        ProcessDirectoryAsync(dir).Wait();
+                        ProcessDirectoryAsync(dir, forceUpdate.HasValue()).Wait();
                     }
                     return 0;
                 }
-                else if (q != null)
+                else if (q != null && q.HasValue())
                 {
-                    InitializeAsync().Wait();
+                    InitializeAsync(settings).Wait();
                     RunQuery(q.Value());
                     return 0;
                 }
@@ -49,9 +55,12 @@ namespace TestCLI
         }
 
         private static DocumentDBHelper documentDb;
-        private static async Task InitializeAsync()
+        private static async Task InitializeAsync(string settingsFile = null)
         {
-            using (var settingsReader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("TestCLI.settings.json")))
+            using (Stream settingsStream = settingsFile == null
+                ? Assembly.GetExecutingAssembly().GetManifestResourceStream("TestCLI.settings.json")
+                : new FileStream(settingsFile, FileMode.Open, FileAccess.Read))
+            using (var settingsReader = new StreamReader(settingsStream))
             using (var textReader = new JsonTextReader(settingsReader))
             {
                 dynamic settings = new JsonSerializer().Deserialize(textReader);
@@ -69,7 +78,7 @@ namespace TestCLI
             }
         }
 
-        private static async Task ProcessDirectoryAsync(string dir)
+        private static async Task ProcessDirectoryAsync(string dir, bool forceUpdate = false)
         {
             Console.WriteLine($"Processing Directory {dir}");
             var imageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -87,19 +96,30 @@ namespace TestCLI
             {
                 try
                 {
-                    Console.WriteLine($"Processing {file}");
                     var fileName = Path.GetFileName(file);
-                    // Resize (if needed) in order to reduce network latency and errors due to large files. Then store the result in a temporary file.
-                    var resized = Util.ResizeIfRequired(file, 750);
-                    Func<Task<Stream>> imageCB = async () => File.OpenRead(resized.Item2);
-                    ImageInsights insights = await ImageProcessor.ProcessImageAsync(imageCB, fileName);
-                    Util.AdjustFaceInsightsBasedOnResizing(insights, resized.Item1);
-                    Console.WriteLine($"Insights: {insights}");
-                    var imageBlob = await BlobStorageHelper.UploadImageAsync(imageCB, fileName);
-                    var metadata = new ImageMetadata(file);
-                    metadata.AddInsights(insights);
-                    metadata.BlobUri = imageBlob.Uri;
-                    metadata = await documentDb.CreateDocumentIfNotExistsAsync(metadata, metadata.Id);
+                    var existing = await documentDb.FindDocumentByIdAsync<ImageMetadata>(fileName);
+                    if (existing == null || forceUpdate)
+                    {
+                        Console.WriteLine($"Processing {file}");
+                        // Resize (if needed) in order to reduce network latency and errors due to large files. Then store the result in a temporary file.
+                        var resized = Util.ResizeIfRequired(file, 750);
+                        Func<Task<Stream>> imageCB = async () => File.OpenRead(resized.Item2);
+                        ImageInsights insights = await ImageProcessor.ProcessImageAsync(imageCB, fileName);
+                        Util.AdjustFaceInsightsBasedOnResizing(insights, resized.Item1);
+                        Console.WriteLine($"Insights: {insights}");
+                        var imageBlob = await BlobStorageHelper.UploadImageAsync(imageCB, fileName);
+                        var metadata = new ImageMetadata(file);
+                        metadata.AddInsights(insights);
+                        metadata.BlobUri = imageBlob.Uri;
+                        if (existing == null)
+                            metadata = await documentDb.CreateDocumentIfNotExistsAsync(metadata, metadata.Id);
+                        else
+                            metadata = await documentDb.UpdateDocumentAsync(metadata, metadata.Id);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Skipping {file}, exists and 'forceUpdate' not set.");
+                    }
                 }
                 catch (Exception e)
                 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
@@ -56,6 +57,13 @@ namespace ImageStorageLibrary
             }
         }
 
+        public async Task<T> UpdateDocumentAsync<T>(T update, string id)
+            where T : new()
+        {
+            await this.Client.ReplaceDocumentAsync(DocumentUri(id), update);
+            return update;
+        }
+
         public IQueryable<T> FindAllDocuments<T>()
             where T : new()
         {
@@ -72,10 +80,18 @@ namespace ImageStorageLibrary
                 CollectionUri(), query, queryOptions);
         }
 
-        public async Task<T> FindDocumentById<T>(string id)
+        public async Task<T> FindDocumentByIdAsync<T>(string id)
             where T : new()
         {
-            return (await this.Client.ReadDocumentAsync<T>(DocumentUri(id))).Document;
+            try
+            {
+                return (await this.Client.ReadDocumentAsync<T>(DocumentUri(id))).Document;
+            }
+            catch (DocumentClientException e)
+            {
+                if (e.StatusCode == HttpStatusCode.NotFound) return default(T);
+                throw;
+            }
         }
 
         private Uri CollectionUri()

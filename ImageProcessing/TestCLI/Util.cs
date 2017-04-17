@@ -29,6 +29,8 @@ namespace TestCLI
         {
             this.Caption = insights.VisionInsights?.Caption;
             this.Tags = insights.VisionInsights?.Tags;
+            this.NumFaces = insights.FaceInsights == null ? 0 : insights.FaceInsights.Length;
+            this.Faces = insights.FaceInsights;
         }
 
         [JsonProperty(PropertyName = "id")]
@@ -43,6 +45,8 @@ namespace TestCLI
         public string Caption { get; set; }
 
         public string[] Tags { get; set; }
+
+        public int NumFaces { get; set; }
 
         public FaceInsights[] Faces { get; set; }
 
