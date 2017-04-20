@@ -106,7 +106,7 @@ namespace TestCLI
                         Func<Task<Stream>> imageCB = async () => File.OpenRead(resized.Item2);
                         ImageInsights insights = await ImageProcessor.ProcessImageAsync(imageCB, fileName);
                         Util.AdjustFaceInsightsBasedOnResizing(insights, resized.Item1);
-                        Console.WriteLine($"Insights: {insights}");
+                        Console.WriteLine($"Insights: {JsonConvert.SerializeObject(insights, Formatting.None)}");
                         var imageBlob = await BlobStorageHelper.UploadImageAsync(imageCB, fileName);
                         var metadata = new ImageMetadata(file);
                         metadata.AddInsights(insights);
