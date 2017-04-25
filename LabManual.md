@@ -10,4 +10,3 @@ If you have been given an Azure Pass to complete this lab, you may go to http://
 
 After creating an Azure account, you may access the Azure portal at https://portal.azure.com.  
 
-
