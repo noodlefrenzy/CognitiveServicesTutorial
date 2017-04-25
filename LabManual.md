@@ -35,13 +35,13 @@ Detailed "Getting Started" instructions can be [found online](https://docs.micro
 
 Within the Azure Portal, click **New->Storage->Storage Account**
 
-![New Azure Storage](./images/create-blob-storage.png)
+![New Azure Storage](./images/create-blob-storage.PNG)
 
-Once you click it, you'll be presenting with the fields above to fill out. Choose your storage account name (lowercase letters and numbers), set _Account kind_ to _Blob storage_, _Replication_ to _Locally-Redundant storage (LRS)_ (this is just to save money), and create a new _Resource Group_. We'll be using this same resource group below for our DocumentDB, so pick something you like. _Pin to dashboard_ so that you can easily find it.
+Once you click it, you'll be presenting with the fields above to fill out. Choose your storage account name (lowercase letters and numbers), set _Account kind_ to _Blob storage_, _Replication_ to _Locally-Redundant storage (LRS)_ (this is just to save money), create a new _Resource Group_ (we'll be using this same resource group below for our DocumentDB, so pick something you like), and set _Location_ to _West US_.  (The list of Azure services that are available in each region is at https://azure.microsoft.com/en-us/regions/services/.) _Pin to dashboard_ so that you can easily find it.
 
 Now that you have an Azure Storage account, let's grab the _Connection String_ and add it to your _TestCLI_ `settings.json`.
 
-![Azure Blob Keys](./images/blob-storage-keys.png)
+![Azure Blob Keys](./images/blob-storage-keys.PNG)
 
 ### DocumentDB ###
 
