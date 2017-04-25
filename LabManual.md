@@ -89,3 +89,4 @@ Once it's done processing, you can query against your DocumentDB directly using 
 ## Exploring DocumentDB ##
 
 ## Building an Azure Search Index ## 
+
