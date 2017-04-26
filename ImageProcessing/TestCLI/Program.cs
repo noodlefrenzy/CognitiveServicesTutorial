@@ -54,7 +54,9 @@ namespace TestCLI
             app.Execute(args);
         }
 
+        private static BlobStorageHelper blobStorage;
         private static DocumentDBHelper documentDb;
+
         private static async Task InitializeAsync(string settingsFile = null)
         {
             using (Stream settingsStream = settingsFile == null
@@ -70,10 +72,13 @@ namespace TestCLI
                 VisionServiceHelper.ApiKey = settings.CognitiveServicesKeys.Vision;
 
                 BlobStorageHelper.ConnectionString = settings.AzureStorage.ConnectionString;
+                BlobStorageHelper.ContainerName = settings.AzureStorage.BlobContainer;
+                blobStorage = await BlobStorageHelper.BuildAsync();
+
                 DocumentDBHelper.AccessKey = settings.DocumentDB.Key;
                 DocumentDBHelper.EndpointUri = settings.DocumentDB.EndpointURI;
-                DocumentDBHelper.DatabaseName = "images";
-                DocumentDBHelper.CollectionName = "metadata";
+                DocumentDBHelper.DatabaseName = settings.DocumentDB.DatabaseName;
+                DocumentDBHelper.CollectionName = settings.DocumentDB.CollectionName;
                 documentDb = await DocumentDBHelper.BuildAsync();
             }
         }
@@ -107,12 +112,12 @@ namespace TestCLI
                         ImageInsights insights = await ImageProcessor.ProcessImageAsync(imageCB, fileName);
                         Util.AdjustFaceInsightsBasedOnResizing(insights, resized.Item1);
                         Console.WriteLine($"Insights: {JsonConvert.SerializeObject(insights, Formatting.None)}");
-                        var imageBlob = await BlobStorageHelper.UploadImageAsync(imageCB, fileName);
+                        var imageBlob = await blobStorage.UploadImageAsync(imageCB, fileName);
                         var metadata = new ImageMetadata(file);
                         metadata.AddInsights(insights);
                         metadata.BlobUri = imageBlob.Uri;
                         if (existing == null)
-                            metadata = await documentDb.CreateDocumentIfNotExistsAsync(metadata, metadata.Id);
+                            metadata = (await documentDb.CreateDocumentIfNotExistsAsync(metadata, metadata.Id)).Item2;
                         else
                             metadata = await documentDb.UpdateDocumentAsync(metadata, metadata.Id);
                     }

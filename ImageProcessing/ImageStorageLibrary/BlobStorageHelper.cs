@@ -10,105 +10,68 @@ using System.Threading.Tasks;
 
 namespace ImageStorageLibrary
 {
+    /// <summary>
+    /// Helper for accessing blob storage. Set the container name and connection string, build it, and you can then upload/retrieve data easily.
+    /// </summary>
     public class BlobStorageHelper
     {
-        public const string DefaultImageContainer = "images";
+        public static String ContainerName { get; set; } = "images";
+        public static String ConnectionString { get; set; }
 
-        static BlobStorageHelper()
+        public static async Task<BlobStorageHelper> BuildAsync()
         {
-            InitializeBlobStorage();
+            if (string.IsNullOrWhiteSpace(ContainerName))
+                throw new ArgumentNullException("ContainerName");
+            if (string.IsNullOrWhiteSpace(ConnectionString))
+                throw new ArgumentNullException("ConnectionString");
+
+            Debug.WriteLine($"Initializing storage account for container {ContainerName}");
+            var helper = new BlobStorageHelper();
+            helper.storageAccount = CloudStorageAccount.Parse(ConnectionString);
+            helper.blobClient = helper.storageAccount.CreateCloudBlobClient();
+            helper.container = helper.blobClient.GetContainerReference(ContainerName);
+            await helper.container.CreateIfNotExistsAsync();
+            // Set permissions to allow people to access blobs _if they know they're there_. They can't list the container.
+            helper.container.SetPermissions(
+                new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
+
+            return helper;
         }
 
-        private static CloudStorageAccount storageAccount { get; set; }
-        private static CloudBlobClient blobClient { get; set; }
-        private static CloudBlobContainer container { get; set; }
+        private BlobStorageHelper() { }
 
-        private static string connectionString;
-        public static string ConnectionString
+        private CloudStorageAccount storageAccount { get; set; }
+        private CloudBlobClient blobClient { get; set; }
+        private CloudBlobContainer container { get; set; }
+
+        /// <summary>
+        /// Upload image from stream into block blob, return blob reference. Image ID is used as blob "filename" so must be valid for blob names.
+        /// </summary>
+        /// <param name="imageStreamCallback">Functor that can produce a task which, when executed, provides the image stream.</param>
+        /// <param name="imageId">Blob file name.</param>
+        /// <returns></returns>
+        public async Task<CloudBlockBlob> UploadImageAsync(Func<Task<Stream>> imageStreamCallback, string imageId)
         {
-            get
-            {
-                return connectionString;
-            }
-
-            set
-            {
-                var changed = connectionString != value;
-                connectionString = value;
-                if (changed)
-                {
-                    InitializeBlobStorage();
-                }
-            }
-        }
-
-        private static string containerName = DefaultImageContainer;
-        private static bool ensureCreated = false;
-        public static string ContainerName
-        {
-            get
-            {
-                return containerName;
-            }
-            set
-            {
-                var changed = containerName != value;
-                containerName = value;
-                if (changed)
-                {
-                    InitializeBlobStorage();
-                }
-            }
-        }
-
-        private static void InitializeBlobStorage()
-        {
-            if (connectionString != null && containerName != null)
-            {
-                Debug.WriteLine($"Initializing storage account for container {containerName}");
-                try
-                {
-                    storageAccount = CloudStorageAccount.Parse(connectionString);
-                    blobClient = storageAccount.CreateCloudBlobClient();
-                    ensureCreated = false;
-                    container = blobClient.GetContainerReference(containerName);
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine($"Failed to initialize storage: {e}");
-                }
-            }
-            else
-            {
-                Debug.WriteLine("No connection string or container name set, cannot initialize.");
-            }
-        }
-
-        public static async Task<CloudBlockBlob> UploadImageAsync(Func<Task<Stream>> imageStreamCallback, string imageId)
-        {
-            if (!ensureCreated)
-            {
-                await container.CreateIfNotExistsAsync();
-                ensureCreated = true;
-            }
-
             CloudBlockBlob blob = container.GetBlockBlobReference(imageId);
             await blob.UploadFromStreamAsync(await imageStreamCallback());
             return blob;
         }
 
-        public static async Task<IList<Uri>> GetImageURIsAsync()
+        /// <summary>
+        /// Gets all image URIs in the blob container.
+        /// </summary>
+        /// <returns>List of URIs for blobs in the container.</returns>
+        public async Task<IList<Uri>> GetImageURIsAsync()
         {
-            if (!ensureCreated)
-            {
-                await container.CreateIfNotExistsAsync();
-                ensureCreated = true;
-            }
-
             return await GetImageURIsAsync("");
         }
 
-        private static async Task<IList<Uri>> GetImageURIsAsync(string prefix)
+        /// <summary>
+        /// Gets all image URIs matching the given prefix. Used for walking a container's "directory tree".
+        /// </summary>
+        /// <param name="prefix">Blob prefix (i.e. "subdirectory")</param>
+        /// <returns>List of URIs for blobs in the container matching the given prefix.</returns>
+        private async Task<IList<Uri>> GetImageURIsAsync(string prefix)
         { 
             BlobContinuationToken tok = null;
             List<Uri> blobUris = new List<Uri>();
