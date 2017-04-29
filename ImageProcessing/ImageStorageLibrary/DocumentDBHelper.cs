@@ -7,6 +7,9 @@ using Microsoft.Azure.Documents.Client;
 
 namespace ImageStorageLibrary
 {
+    /// <summary>
+    /// Helper for accessing DocumentDB. Set the endpoint URI and Access Key (find these in the portal), your DB and Collection names, and then build your instance.
+    /// </summary>
     public class DocumentDBHelper
     {
         public static string EndpointUri { get; set; }
@@ -35,28 +38,41 @@ namespace ImageStorageLibrary
 
         private DocumentDBHelper()
         {
-            
         }
 
         private DocumentClient Client { get; set; }
         private Database Database { get; set; }
         private DocumentCollection Collection { get; set; }
 
-        public async Task<T> CreateDocumentIfNotExistsAsync<T>(T document, string id)
+        /// <summary>
+        /// Create a document with the given ID in the DB/Collection, unless it already exists. If it exists, return the existing version.
+        /// </summary>
+        /// <typeparam name="T">Type of the document.</typeparam>
+        /// <param name="document">Document to create.</param>
+        /// <param name="id">ID for the created document, used in Document URI so must be valid DocuemntDB ID.</param>
+        /// <returns>Tuple with whether document was created or not, and either created or existing document.</returns>
+        public async Task<Tuple<bool, T>> CreateDocumentIfNotExistsAsync<T>(T document, string id)
             where T : new()
         {
             try
             {
                 return
-                (await this.Client.ReadDocumentAsync<T>(DocumentUri(id))).Document;
+                Tuple.Create(false, (await this.Client.ReadDocumentAsync<T>(DocumentUri(id))).Document);
             }
             catch (DocumentClientException)
             {
                 await this.Client.CreateDocumentAsync(CollectionUri(), document);
-                return document;
+                return Tuple.Create(true, document);
             }
         }
 
+        /// <summary>
+        /// Update/replace the existing document with the given ID.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="update">Document to update</param>
+        /// <param name="id">ID for the updated document, used in Document URI so must be valid DocumentDB ID.</param>
+        /// <returns>Updated document.</returns>
         public async Task<T> UpdateDocumentAsync<T>(T update, string id)
             where T : new()
         {
@@ -64,6 +80,11 @@ namespace ImageStorageLibrary
             return update;
         }
 
+        /// <summary>
+        /// Find all documents in the collection.
+        /// </summary>
+        /// <typeparam name="T">Type of documents to find.</typeparam>
+        /// <returns>Queryable capable of returning all documents.</returns>
         public IQueryable<T> FindAllDocuments<T>()
             where T : new()
         {
@@ -72,6 +93,12 @@ namespace ImageStorageLibrary
                 CollectionUri(), queryOptions);
         }
 
+        /// <summary>
+        /// Find all documents matching the given query in the collection.
+        /// </summary>
+        /// <typeparam name="T">Type of documents to find.</typeparam>
+        /// <param name="query">Query against the document store.</param>
+        /// <returns>Queryable capable of returning all matching documents.</returns>
         public IQueryable<T> FindMatchingDocuments<T>(string query)
             where T : new()
         {
@@ -80,6 +107,12 @@ namespace ImageStorageLibrary
                 CollectionUri(), query, queryOptions);
         }
 
+        /// <summary>
+        /// Simple "find by ID" query.
+        /// </summary>
+        /// <typeparam name="T">Type of document to find.</typeparam>
+        /// <param name="id">ID of the document, will be used to look up by DocumentDB URI.</param>
+        /// <returns>Found document, or null (assuming T is nullable).</returns>
         public async Task<T> FindDocumentByIdAsync<T>(string id)
             where T : new()
         {

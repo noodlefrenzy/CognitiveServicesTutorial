@@ -11,8 +11,15 @@ using Newtonsoft.Json;
 
 namespace TestCLI
 {
+    /// <summary>
+    /// ImageMetadata stores the image data from Cognitive Services into DocumentDB.
+    /// </summary>
     public class ImageMetadata
     {
+        /// <summary>
+        /// Build from an image path, storing the full local path, but using the filename as ID.
+        /// </summary>
+        /// <param name="imageFilePath">Local file path.</param>
         public ImageMetadata(string imageFilePath)
         {
             this.LocalFilePath = imageFilePath;
@@ -20,11 +27,18 @@ namespace TestCLI
             this.Id = this.FileName; // TODO: Worry about collisions, but ID can't handle slashes.
         }
 
+        /// <summary>
+        /// Public parameterless constructor for serialization-friendliness.
+        /// </summary>
         public ImageMetadata()
         {
             
         }
 
+        /// <summary>
+        /// Store the ImageInsights into the metadata - pulls out tags and caption, stores number of faces and face details.
+        /// </summary>
+        /// <param name="insights"></param>
         public void AddInsights(ImageInsights insights)
         {
             this.Caption = insights.VisionInsights?.Caption;
@@ -58,6 +72,13 @@ namespace TestCLI
 
     static class Util
     {
+        /// <summary>
+        /// Simple resize method for use when we're trying to run the cognitive services against large images. 
+        /// We resize downward to avoid too much data over the wire.
+        /// </summary>
+        /// <param name="imageFile">Image file to resize.</param>
+        /// <param name="maxDim">Maximum height/width - will retain aspect ratio.</param>
+        /// <returns>Revised width/height and resized image filename.</returns>
         public static Tuple<Tuple<double, double>, string> ResizeIfRequired(string imageFile, int maxDim)
         {
             using (var origImg = Image.FromFile(imageFile))
@@ -81,7 +102,6 @@ namespace TestCLI
                     var resizedImageFile = Path.GetTempFileName();
                     using (var resultingImg = (Image)(new Bitmap(origImg, new Size(width, height))))
                         resultingImg.Save(resizedImageFile, ImageFormat.Png);
-                    //            return new Tuple<double, double>((double)originalWidth / wb.PixelWidth, (double)originalHeight / wb.PixelHeight);
 
                     return Tuple.Create(Tuple.Create((double)origImg.Width / width, (double)origImg.Height / height), resizedImageFile);
                 }
@@ -93,6 +113,11 @@ namespace TestCLI
             }
         }
 
+        /// <summary>
+        /// If we resize the image, we should resize the face rectangles in our insights appropriately.
+        /// </summary>
+        /// <param name="insights"></param>
+        /// <param name="resizeTransform"></param>
         public static void AdjustFaceInsightsBasedOnResizing(ImageInsights insights, Tuple<double,double> resizeTransform)
         {
             if (resizeTransform == null) return; // No resize was needed.

@@ -5,10 +5,13 @@
     "Vision": ""
   },
   "AzureStorage": {
-    "ConnectionString": ""
+    "ConnectionString": "",
+    "BlobContainer":  "images"
   },
   "DocumentDB": {
     "EndpointURI": "",
-    "Key": ""
+    "Key": "",
+    "DatabaseName": "images",
+    "CollectionName": "metadata"
   }
 }
