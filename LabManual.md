@@ -172,5 +172,15 @@ Click **OK, three times** to start the Indexer job that will start the importing
 
 ![Configure Indexer](./images/AzureSearch-ConfigureIndexer.png) 
 
+***Query the Search Index***
+
+You should see a message pop up indicating that Indexing has started.  If you wish to check the status of the Indexer, you can choose the "Indexer" option in the main Azure Search blade.
+
+At this point we can try searching the index.  
+
+Click **Search Explorer** and in the resulting blade choose your Index if it is not already selected.
+
+Click **Search** to search for all documents.
+
 ![Search Explorer](./images/AzureSearch-SearchExplorer.png) 
 
