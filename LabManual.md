@@ -134,6 +134,22 @@ Once you click this, choose a name for the DocumentDB datasource and choose the 
 
 Click **OK**.
 
+At this point Azure Search will connect to your DocumentDB container and analyze a few documents to identify a default schema for your Azure Search Index.  After this is complete, you can set the properties for the fields as needed by your application.
+
+Update the Index name to: **images**
+
+Update the Key to: **rid** (which uniquely identifies each document)
+
+Set all fields to be **Retrievable** (to allow the client to retrieve these fields when searched)
+
+Set the fields **Tags, NumFaces, and Faces** to be **Filterable** (to allow the client to filter results based on these values)
+
+Set the field **NumFaces** to be **Sortable** (to allow the client to sort the results based on the number of faces in the image)
+
+Set the fields **Tags, NumFaces, and Faces** to be **Facetable** (to allow the client to group the results by count, for example for your search result, there were "5 pictures that had a Tag of "beach")
+
+Set the fields **Caption, Tags,and Faces** to be **Searchable** (to allow the client to do full text search over the text in these fields)
+
 ![Configure Azure Search Index](./images/AzureSearch-ConfigureIndex.png) 
 
 ![Language Analyzers](./images/AzureSearch-Analyzer.png) 
