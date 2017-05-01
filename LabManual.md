@@ -152,9 +152,23 @@ Set the fields **Caption, Tags,and Faces** to be **Searchable** (to allow the cl
 
 ![Configure Azure Search Index](./images/AzureSearch-ConfigureIndex.png) 
 
+At this point we will configure the Azure Search Analyzers.  At a high level, you can think of an analyzer as the thing that takes the terms a user enters and works to find the best matching terms in the Index.  Azure Search includes analyzers that are used in technologies like Bing and Office that have deep understanding of 56 languages.  
+
+Click the **Analyzer** tab and set the fields **Caption, Tags,and Faces** to use the **English-Mocrosoft** analyzer
+
 ![Language Analyzers](./images/AzureSearch-Analyzer.png) 
 
+For the final Index configuration step we will set the fields that will be used for type ahead, allowing the user to type parts of a word where Azure Search will look for best matches in these fields
+
+Click the **Suggeester** tab and enter a Suggester Name: **sg** and choose **Tags and Faces** to be the fields to look for term suggestions
+
 ![Search Suggestions](./images/AzureSearch-Suggester.png) 
+
+Click **OK** to complete the configuration of the Indexer.  You could set at schedule for how often the Indexer should check for changes, however, for this lab we will just run it once.  
+
+Click **Advanced Options** and choose to **Base 64 Encode Keys** to ensure that the RID field only uses characters supported in the Azure Search key field.
+
+Click **OK, three times** to start the Indexer job that will start the importing of the data from the DocumentDB database.
 
 ![Configure Indexer](./images/AzureSearch-ConfigureIndexer.png) 
 
