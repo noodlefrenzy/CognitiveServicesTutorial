@@ -106,3 +106,19 @@ Once it's done processing, you can query against your DocumentDB directly using 
 
 ## Building an Azure Search Index ## 
 
+### Create an Azure Search Service ### 
+
+Within the Azure Portal, click **New->Web + Mobile->Azure Search**.
+
+[Add Image]
+
+Once you click this, you'll have to fill out a few fields as you see fit. For this lab, a "Free" tier is sufficient.
+
+[Add Image]
+
+Once creation is complete, open the panel for your new search service.
+
+### Create an Azure Search Index ### 
+
+An Index is the container for your data and is a similar concept to that of a SQL Server table.  Like a table has rows, an Index has documents.  Like a table that has fields, an Index has fields.  These fields can have properties that tell things such as if it is full text searchable, or if it is filterable.  You can populate content into Azure Search by programatically [pushing content](https://docs.microsoft.com/en-us/rest/api/searchservice/addupdate-or-delete-documents) or by using the [Azure Search Indexer](https://docs.microsoft.com/en-us/azure/search/search-indexer-overview) (which can crawl common datastores for data).
+
