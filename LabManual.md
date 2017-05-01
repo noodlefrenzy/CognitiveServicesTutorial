@@ -110,11 +110,9 @@ Once it's done processing, you can query against your DocumentDB directly using 
 
 Within the Azure Portal, click **New->Web + Mobile->Azure Search**.
 
-[Add Image]
-
 Once you click this, you'll have to fill out a few fields as you see fit. For this lab, a "Free" tier is sufficient.
 
-[Add Image]
+![Create New Azure Search Service](./images/AzureSearch-CreateSearchService.png)
 
 Once creation is complete, open the panel for your new search service.
 
