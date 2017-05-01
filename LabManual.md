@@ -124,10 +124,23 @@ An Index is the container for your data and is a similar concept to that of a SQ
 
 For this lab, we will use the [Azure Search Indexer for DocumentDB](https://docs.microsoft.com/en-us/azure/search/search-howto-index-documentdb) to crawl the data in the the DocumentDB container. 
 
+![Import Wizard](./images/AzureSearch-ImportData.png) 
+
 Within the Azure Search blade you just created, click **Import Data->Data Source->DocumentDB**.
+
+![Import Wizard for DocDB](./images/AzureSearch-DataSource.png) 
 
 Once you click this, choose a name for the DocumentDB datasource and choose the DocumentDB account where your data resides as well as the cooresponding Container and Collections.  
 
 Click **OK**.
 
+![Configure Azure Search Index](./images/AzureSearch-ConfigureIndex.png) 
+
+![Language Analyzers](./images/AzureSearch-Analyzer.png) 
+
+![Search Suggestions](./images/AzureSearch-Suggester.png) 
+
+![Configure Indexer](./images/AzureSearch-ConfigureIndexer.png) 
+
+![Search Explorer](./images/AzureSearch-SearchExplorer.png) 
 
