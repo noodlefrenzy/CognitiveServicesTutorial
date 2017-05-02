@@ -84,9 +84,19 @@ Once creation is complete, open the panel for your new database and select the _
 
 You'll need the **URI** and the **PRIMARY KEY** for your _TestCLI's_ `settings.json` file, so copy those into there and you're now ready to store images and data into the cloud.
 
-## Loading Images Using TestCLI ##
+## Exploring DocumentDB ##
 
-Once you've set your Cognitive Services API keys, your Azure Blob Storage Connection String, and your DocumentDB Endpoint URI and Key in your _TestCLI's_ `settings.json`, you're ready to go. Build _TestCLI_, and run it:
+### Implementing DocumentDBHelper ###
+
+With `ImageProcessing.sln` from the `Starting` directory open, look in the `ImageStorageLibrary` project for the `DocumentDBHelper.cs` class. Take a look for `NotImplementedException` and you'll notice quite a few in the file. These are _suggested_ operations - feel free to implement different ones instead if they suit your needs. Many of the implementations can be found in the [Getting Started guide](https://docs.microsoft.com/en-us/azure/documentdb/documentdb-get-started).
+
+Once you've implemented the operations in the helper, got to `TestCLI`'s `Util.cs` and notice that the `ImageMetadata` class has some gaps. We need to turn the `ImageInsights` we retrieve from Cognitive Services into appropriate Metadata to be stored into DocumentDB.
+
+Finally, look in `Program.cs` and notice in `ProcessDirectoryAsync` there's a `NotImplementedException` after we store the image into Blob Storage, but before we store its metadata. We should fix that as well.
+
+### Loading Images Using TestCLI ###
+
+Once you've set your Cognitive Services API keys, your Azure Blob Storage Connection String, and your DocumentDB Endpoint URI and Key in your _TestCLI's_ `settings.json`, and fixed all of the missing pieces above, you're ready to go. Build _TestCLI_, and run it:
 
     > .\bin\Debug\TestCLI.exe
 
@@ -107,8 +117,6 @@ Once it's done processing, you can query against your DocumentDB directly using 
 
     > .\bin\Debug\TestCLI.exe -query "select * from images"
 
-## Exploring DocumentDB ##
-
 ## Building an Azure Search Index ## 
 
 ### Create an Azure Search Service ### 
@@ -117,7 +125,7 @@ Within the Azure Portal, click **New->Web + Mobile->Azure Search**.
 
 Once you click this, you'll have to fill out a few fields as you see fit. For this lab, a "Free" tier is sufficient.
 
-![Create New Azure Search Service](./images/AzureSearch-CreateSearchService.png)
+![Create New Azure Search Service](./assets/AzureSearch-CreateSearchService.png)
 
 Once creation is complete, open the panel for your new search service.
 
@@ -127,11 +135,11 @@ An Index is the container for your data and is a similar concept to that of a SQ
 
 For this lab, we will use the [Azure Search Indexer for DocumentDB](https://docs.microsoft.com/en-us/azure/search/search-howto-index-documentdb) to crawl the data in the the DocumentDB container. 
 
-![Import Wizard](./images/AzureSearch-ImportData.png) 
+![Import Wizard](./assets/AzureSearch-ImportData.png) 
 
 Within the Azure Search blade you just created, click **Import Data->Data Source->DocumentDB**.
 
-![Import Wizard for DocDB](./images/AzureSearch-DataSource.png) 
+![Import Wizard for DocDB](./assets/AzureSearch-DataSource.png) 
 
 Once you click this, choose a name for the DocumentDB datasource and choose the DocumentDB account where your data resides as well as the cooresponding Container and Collections.  
 
@@ -153,19 +161,19 @@ Set the fields **Tags, NumFaces, and Faces** to be **Facetable** (to allow the c
 
 Set the fields **Caption, Tags,and Faces** to be **Searchable** (to allow the client to do full text search over the text in these fields)
 
-![Configure Azure Search Index](./images/AzureSearch-ConfigureIndex.png) 
+![Configure Azure Search Index](./assets/AzureSearch-ConfigureIndex.png) 
 
 At this point we will configure the Azure Search Analyzers.  At a high level, you can think of an analyzer as the thing that takes the terms a user enters and works to find the best matching terms in the Index.  Azure Search includes analyzers that are used in technologies like Bing and Office that have deep understanding of 56 languages.  
 
 Click the **Analyzer** tab and set the fields **Caption, Tags,and Faces** to use the **English-Mocrosoft** analyzer
 
-![Language Analyzers](./images/AzureSearch-Analyzer.png) 
+![Language Analyzers](./assets/AzureSearch-Analyzer.png) 
 
 For the final Index configuration step we will set the fields that will be used for type ahead, allowing the user to type parts of a word where Azure Search will look for best matches in these fields
 
 Click the **Suggeester** tab and enter a Suggester Name: **sg** and choose **Tags and Faces** to be the fields to look for term suggestions
 
-![Search Suggestions](./images/AzureSearch-Suggester.png) 
+![Search Suggestions](./assets/AzureSearch-Suggester.png) 
 
 Click **OK** to complete the configuration of the Indexer.  You could set at schedule for how often the Indexer should check for changes, however, for this lab we will just run it once.  
 
@@ -173,7 +181,7 @@ Click **Advanced Options** and choose to **Base 64 Encode Keys** to ensure that 
 
 Click **OK, three times** to start the Indexer job that will start the importing of the data from the DocumentDB database.
 
-![Configure Indexer](./images/AzureSearch-ConfigureIndexer.png) 
+![Configure Indexer](./assets/AzureSearch-ConfigureIndexer.png) 
 
 ***Query the Search Index***
 
@@ -185,5 +193,5 @@ Click **Search Explorer** and in the resulting blade choose your Index if it is 
 
 Click **Search** to search for all documents.
 
-![Search Explorer](./images/AzureSearch-SearchExplorer.png) 
+![Search Explorer](./assets/AzureSearch-SearchExplorer.png) 
 
