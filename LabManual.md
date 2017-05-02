@@ -8,7 +8,12 @@ If you have been given an Azure Pass to complete this lab, you may go to http://
 
 ## Navigating the Solution ##
 
-We have created a Solution (.sln) which contains several different projects, let's take a high-level look at them:
+There are two main top-level directories:
+
+- **Starting**: This contains _skeleton_ code with parts missing that serves as the baseline for the tutorial. You should _start_ here.
+- **Finished**: We have included the _finished_ solution, so that you can examine our take on what the code should look like. If you fall behind during the tutorial session, feel free to take code from here and use it in your solution.
+
+In both, we have created a Solution (.sln) which contains several different projects, let's take a high-level look at them:
 
 - **ImageProcessingLibrary**: This is a Portable Class Library (PCL) containing helper classes for accessing the various Cognitive Services related to Vision, and some "Insights" classes for encapsulating the results.
 - **ImageStorageLibrary**: Since DocumentDB does not (yet) support UWP, this is a non-portable library for accessing Blob Storage and DocumentDB.
@@ -27,15 +32,15 @@ Within the Portal, we'll first create keys for the Cognitive Services we'll be u
 
 In the Portal, hit **New** and then enter **cognitive** in the search box and choose **Cognitive Services**:
 
-![Creating a Cognitive Service Key](./images/new-cognitive-services.png)
+![Creating a Cognitive Service Key](./assets/new-cognitive-services.PNG)
 
 This will lead you to fill out a few details for the API endpoint you'll be creating, choosing the API you're interested in and where you'd like your endpoint to reside, as well as what pricing plan you'd like. We'll be using S1 so that we have the throughput we need for the tutorial, and creating a new _Resource Group_. We'll be using this same resource group below for our Blob Storage and DocumentDB, so pick something you like. _Pin to dashboard_ so that you can easily find it. Since the Computer Vision API stores images internally at Microsoft (in a secure fashion) to help improve future Cognitive Services Vision offerings, you'll need to _Enable_ Account creation. This can be a stumbling block for users in Enterprise environment, as only Subscription Administrators have the right to enable this, but for Azure Pass users it's not an issue.
 
-![Choosing Cognitive Services Details](./images/cognitive-account-creation.png) 
+![Choosing Cognitive Services Details](./assets/cognitive-account-creation.PNG) 
 
 Once you have created your new API subscription, you can grab the keys from the appropriate section of the blade, and add them to your _TestApp's_ and _TestCLI's_ `settings.json` file.
 
-![Cognitive API Key](./images/cognitive-keys.png)
+![Cognitive API Key](./assets/cognitive-keys.PNG)
 
 We'll also be using other APIs within the Computer Vision family, so take this opportunity to create API keys for the _Emotion_ and _Face_ APIs as well. They are created in the same fashion as above, and should re-use the same Resource Group you've created. _Pin to Dashboard_, and then add those keys to your `settings.json` files.
 
@@ -51,13 +56,13 @@ Detailed "Getting Started" instructions can be [found online](https://docs.micro
 
 Within the Azure Portal, click **New->Storage->Storage Account**
 
-![New Azure Storage](./images/create-blob-storage.PNG)
+![New Azure Storage](./assets/create-blob-storage.PNG)
 
 Once you click it, you'll be presented with the fields above to fill out. Choose your storage account name (lowercase letters and numbers), set _Account kind_ to _Blob storage_, _Replication_ to _Locally-Redundant storage (LRS)_ (this is just to save money), use the same Resource Group as above, and set _Location_ to _West US_.  (The list of Azure services that are available in each region is at https://azure.microsoft.com/en-us/regions/services/.) _Pin to dashboard_ so that you can easily find it.
 
 Now that you have an Azure Storage account, let's grab the _Connection String_ and add it to your _TestCLI_ `settings.json`.
 
-![Azure Blob Keys](./images/blob-storage-keys.PNG)
+![Azure Blob Keys](./assets/blob-storage-keys.PNG)
 
 ### DocumentDB ###
 
@@ -65,17 +70,17 @@ Detailed "Getting Started" instructions can be [found online](https://docs.micro
 
 Within the Azure Portal, click **New->Databases->NoSQL (DocumentDB)**.
 
-![New DocumentDB](./images/create-docdb-portal.png)
+![New DocumentDB](./assets/create-docdb-portal.png)
 
 Once you click this, you'll have to fill out a few fields as you see fit. 
 
-![DocumentDB Creation Form](./images/create-docdb-formfill.png)
+![DocumentDB Creation Form](./assets/create-docdb-formfill.png)
 
 In our case, select the ID you'd like, subject to the constraints that it needs to be lowercase letters, numbers, or dashes. We will be using the DocumentDB SDK and not Mongo, so select DocumentDB as the NoSQL API. Let's use the same Resource Group as we used for our previous steps, and the same location, select _Pin to dashboard_ to make sure we keep track of it and it's easy to get back to, and hit Create.
 
 Once creation is complete, open the panel for your new database and select the _Keys_ sub-panel.
 
-![Keys sub-panel for DocumentDB](./images/docdb-keys.png)
+![Keys sub-panel for DocumentDB](./assets/docdb-keys.png)
 
 You'll need the **URI** and the **PRIMARY KEY** for your _TestCLI's_ `settings.json` file, so copy those into there and you're now ready to store images and data into the cloud.
 
