@@ -12,6 +12,8 @@ The goal of the Cognitive Services track for the AI Immersion Workshop is to giv
 
 We're building an end-to-end scenario that allows you to pull in your own pictures, use Cognitive Services to find objects and people in the images, figure out how those people are feeling, and store all of that data into a NoSQL Store (DocumentDB). We use that NoSQL Store to populate an Azure Search index, and then build a Bot Framework bot using LUIS to allow easy, targeted querying.
 
+We walk through the scenario in detail in the **[Lab Manual](./LabManual.md)** - please start there!
+
 # Architecture
 
 We build a simple C# application that allows you to ingest pictures from your local drive, then invoke several different Cognitive Services to gather data on those images:
