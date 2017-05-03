@@ -90,7 +90,7 @@ When you open the `ImageProcessing.sln` solution, from either the `Starting` or 
 
 Before running the app make sure to enter the Cognitive Services API keys in the `settings.json` file under the `TestApp` project. Once you do that, run the app, point it to any folder with images (via the `Select Folder` button), and it should generate results like the following, showing all the images it processed, along with a break down of unique faces, emotions and tags that also act as filters on the image collection.
 
-![UWPTestApp](./assets/UWPTestApp.jpg)
+![UWP Test App](./assets/UWPTestApp.JPG)
 
 Once the app processes a given directory it will cache the resuls in a `ImageInsights.json` file in that same folder, allowing you to look at that folder results again without having to call the various APIs. 
 
