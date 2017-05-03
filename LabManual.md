@@ -72,7 +72,7 @@ Within the Azure Portal, click **New->Databases->NoSQL (DocumentDB)**.
 
 ![New DocumentDB](./assets/create-docdb-portal.png)
 
-nce you click this, you'll have to fill out a few fields as you see fit. 
+Once you click this, you'll have to fill out a few fields as you see fit. 
 
 ![DocumentDB Creation Form](./assets/create-docdb-formfill.png)
 
