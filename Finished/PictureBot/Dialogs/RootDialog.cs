@@ -25,11 +25,12 @@ namespace PictureBot.Dialogs
         //    context.Wait(MessageReceivedAsync);
         //}
 
+        [RegexPattern("^hello")]
         [RegexPattern("^hi")]
         [ScorableGroup(0)]
         public async Task Hello(IDialogContext context, IActivity activity)
         {
-            await context.PostAsync("Hello!  I am a Photo Organization Bot.  You can ask me things like 'find pictures of women outside'.  I can also share your photos on Twitter.");
+            await context.PostAsync("Hello from RegEx!  I am a Photo Organization Bot.  You can ask me things like 'find pictures of food'.  I can also share your photos on Twitter.");
         }
 
         [RegexPattern("^help")]
@@ -53,6 +54,7 @@ namespace PictureBot.Dialogs
         [ScorableGroup(1)]
         public async Task SearchPics(IDialogContext context, LuisResult result)
         {
+            // TODO: change LUIS to only have facet entity?  
             // TODO: LUIS deserialization errors with entities - fixed?  
             string gender = null;
             string age = null;
@@ -65,10 +67,14 @@ namespace PictureBot.Dialogs
             if (result.TryFindEntity("emotion", out rec)) emotion = rec.Entity;
             if (result.TryFindEntity("facet", out rec)) facet = rec.Entity;
 
-            // TODO: call Azure Search
-            // Jen start here
-
             await context.PostAsync($"Searching pictures...");
+            context.Call(new SearchDialog(facet), ResumeAfterSearchDialog);
+        }
+
+        private async Task ResumeAfterSearchDialog(IDialogContext context, IAwaitable<object> result)
+        {
+            // TODO: remove if this isn't used
+            await context.PostAsync("Done searching pictures");
         }
 
         [LuisIntent("SharePic")]
@@ -98,13 +104,14 @@ namespace PictureBot.Dialogs
         [ScorableGroup(1)]
         public async Task Greeting(IDialogContext context, LuisResult result)
         {
-            // TODO: remove this - duplicate logic?  
-            await context.PostAsync("Hello!  I am a Photo Organization Bot.  You can ask me things like 'find pictures of women outside'.  I can also share your photos on Twitter.");
+            // TODO: remove this?
+            // Duplicate logic, for a teachable moment.  Try commenting out the "hello" RegEx above!  
+            await context.PostAsync("Hello from LUIS!  I am a Photo Organization Bot.  You can ask me things like 'find pictures of food'.  I can also share your photos on Twitter.");
         }
 
         // Since none of the scorables in previous group won, the dialog sends a help message.
         [MethodBind]
-        [ScorableGroup(3)]
+        [ScorableGroup(2)]
         public async Task Default(IDialogContext context, IActivity activity)
         {
             await context.PostAsync("I'm sorry. I didn't understand you.");
