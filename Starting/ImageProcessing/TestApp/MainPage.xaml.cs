@@ -35,24 +35,30 @@ namespace TestApp
 
         public MainPage()
         {
+            InitializeServiceHelpers();
+
             this.InitializeComponent();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        private static void InitializeServiceHelpers()
         {
             // callbacks for core library
             FaceServiceHelper.Throttled = () => Util.ShowToastNotification("The Face API is throttling your requests. Consider upgrading to a Premium Key.");
             VisionServiceHelper.Throttled = () => Util.ShowToastNotification("The Vision API is throttling your requests. Consider upgrading to a Premium Key.");
             ErrorTrackingHelper.TrackException = (exception, message) => { Debug.WriteLine("ImageProcessingLibrary exception: {0}", message); };
 
-            // Enter API Keys here
-            FaceServiceHelper.ApiKey = "";
-            EmotionServiceHelper.ApiKey = "";
-            VisionServiceHelper.ApiKey = "";
+            // API Keys
+            using (FileStream fileStream = File.OpenRead(Path.Combine(Directory.GetCurrentDirectory(), "settings.json")))
+            using (var settingsReader = new StreamReader(fileStream))
+            using (var textReader = new JsonTextReader(settingsReader))
+            {
+                dynamic settings = new JsonSerializer().Deserialize(textReader);
 
-            base.OnNavigatedTo(e);
+                FaceServiceHelper.ApiKey = settings.CognitiveServicesKeys.Face;
+                EmotionServiceHelper.ApiKey = settings.CognitiveServicesKeys.Emotion;
+                VisionServiceHelper.ApiKey = settings.CognitiveServicesKeys.Vision;
+            }
         }
-
         private async void ProcessImagesClicked(object sender, RoutedEventArgs e)
         {
             try

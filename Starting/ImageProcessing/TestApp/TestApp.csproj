@@ -110,6 +110,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <Content Include="settings.json" />
     <None Include="TestApp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
