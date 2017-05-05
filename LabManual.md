@@ -205,3 +205,132 @@ Click **Search** to search for all documents.
 
 ![Search Explorer](./assets/AzureSearch-SearchExplorer.png) 
 
+
+## Building a Bot ##
+
+### Setting up for Bot Development ###
+
+We will be developing a bot using the C# SDK.  To get started, you need two things:
+1. The Bot Framework project template, which you can download from http://aka.ms/bf-bc-vstemplate.  The file is called "Bot Application.zip" and you should save it into the <Documents>\Visual Studio 2015\Templates\ProjectTemplates\Visual C#\ directory.  Just drop the whole zipped file in there; no need to unzip.  
+2. Download the Bot Framework Emulator for testing your bot locally from https://emulator.botframework.com/.  
+
+### Create a Simple Bot ###
+
+In Visual Studio, go to File --> New Project and create a Bot Application.  You can name it "PictureBot" or something similar.  
+
+![New Bot Application](./assets/NewBotApplication.jpg) 
+
+Browse around and examine the sample bot code, which is an echo bot that repeats back your message and its length in characters.  In particular, note:
++ In **WebApiConfig.cs** under App_Start, the route template is api/{controller}/{id} where the id is optional.  That is why we always call the bot's endpoint with api/messages appended at the end.  
++ The **MessagesController.cs** under Controllers is therefore the entry point into your bot.  Notice that a bot can respond to many different activity types, and sending a message will invoke the RootDialog.  
++ In **RootDialog.cs** under Dialogs, "StartAsync" is the entry point which waits for a message from the user, and "MessageReceivedAsync" is the method that will handle the message once received and then wait for further messages.  We can use "context.PostAsync" to send a message from the bot back to the user.  
+
+### Run the Bot ###
+
+Click F5 to run the sample code.  NuGet should take care of downloading the appropriate dependencies.  
+
+The code will launch in your default web browser in a URL similar to http://localhost:3979/.  
+
+> Fun Aside: why this port number?  It is set in your project properties.  In your Solution Explorer, double-click "Properties" and select the "Web" tab.  The Project Url is set in the "Servers" section.  
+
+![Bot Project URL](./assets/BotProjectUrl.jpg) 
+
+Make sure your project is still running (hit F5 again if you stopped to look at the project properties) and launch the Bot Framework Emulator.  Ensure that the Bot Url matches the port number that your code launched in above, and has api/messages appended to the end.  Now you should be able to converse with the bot.  
+
+TODO: picture of Bot Emulator
+
+### Add Intelligence to your Bot with LUIS ###
+
+Now let's expand this bot to integrate with our picture scenario.  We can give it some natural language capabilities with the [Language Understanding Intelligent Service](https://www.luis.ai/), or LUIS.  LUIS allows you to map natural language utterances to intents.  For our application, we might have several intents: finding pictures, sharing pictures, and ordering prints of pictures, for example.  We can give a few example utterances as ways to ask for each of these things, and LUIS will map additional new utterances to each intent based on what it has learned.  
+
+Navigate to https://www.luis.ai and sign in using your Microsoft account.  You should be redirected to a list of your LUIS applications at https://www.luis.ai/applications.  We will create a new LUIS app to support our bot.  
+
+> Fun Aside: Notice that there is also an "Import App" next to the "New App" button on [the current page](https://www.luis.ai/applications).  After creating your LUIS application, you have the ability to export the entire app as JSON, and check it into source control.  This is a recommended best practice so you can version your LUIS models as you version your code.  An exported LUIS app may be re-imported using that "Import App" button.  If you fall behind during the lab and want to cheat, you can click the "Import App" button and import the [LUIS model from the Finished section](./Finished/LUIS/CognitiveServicesTutorialLuisModel.json).  
+
+From https://www.luis.ai/applications, click the "New App" button.  Give it a name (I chose "PictureBotLuisModel") and set the Culture to "English".  You can optionally provide a description.  Click the dropdown to select an endpoint key to use, and if the LUIS key that you created on the Azure portal at the beginning of this lab is there, select it.  Then click "Create".  
+
+![LUIS New App](./assets/LuisNewApp.jpg) 
+
+You will be taken to a Dashboard for your new app.  The App Id is displayed; note that down for later as your LUIS App ID.  Then click "Create an intent".  
+
+![LUIS Dashboard](./assets/LuisDashboard.jpg) 
+
+We want our bot to be able to do the following things:
++ Search/find pictures
++ Share pictures on social media
++ Order prints of pictures
++ Greet the user (although this can also be done other ways as we will see later)
+
+Let's create intents for the user requesting each of these.  Click the "Add intent" button.  
+
+Name the first intent "Greeting" and click "Save".  Then give several examples of things the user might say when greeting the bot, pressing "Enter" after each one.  After you have entered some utterances, click "Save".  
+
+![LUIS Greeting Intent](./assets/LuisGreetingIntent.jpg) 
+
+Now let's see how to create an entity.  When the user requests to search the pictures, they may specify what they are looking for.  Let's capture that in an entity.  
+
+Click on "Entities" in the left-hand column and then click "Add custom entity".  Give it an entity name "facet" and entity type "Simple".  Then click "Save".  
+
+![Add Facet Entity](./assets/AddFacetEntity.jpg) 
+
+Now click "Intents" in the left-hand sidebar and then click the yellow "Add Intent" button.  Give it an intent name of "SearchPics" and then click "Save".  
+
+Now let's add some sample utterances.  People might search for pictures in many ways.  Feel free to use some of the utterances below, and add your own wording for how you would ask a bot to search for pictures.  
+
++ Find outdoor pics
++ Are there pictures of a train?
++ Find pictures of food.
++ Search for photos of a 6-month-old boy
++ Please give me pics of 20-year-old women
++ Show me beach pics
++ I want to find dog photos
++ Search for pictures of women indoors
++ Show me pictures of girls looking happy
++ I want to see pics of sad girls
++ Show me happy baby pics
+
+Now we have to teach LUIS how to pick out the search topic as the "facet" entity.  Hover and click over the word (or drag to select a group of words) and then select the "facet" entity.  
+
+![Labelling Entity](./assets/LabellingEntity.jpg) 
+
+So the following list of utterances...
+
+![Add Facet Entity](./assets/SearchPicsIntentBefore.jpg) 
+
+...may become something like this when the facets are labelled.  
+
+![Add Facet Entity](./assets/SearchPicsIntentAfter.jpg) 
+
+Don't forget to click "Save" when you are done!  
+
+Finally, click "Intents" in the left sidebar and add two more intents:
++ Name one intent **"SharePic"**.  This might be identified by utterances like "Share this pic", "Can you tweet that?", or "post to Twitter".  
++ Create another intent named **"OrderPic"**.  This could be communicated with utterances like "Print this picture", "I would like to order prints", "Can I get an 8x10 of that one?", and "Order wallets".  
+When choosing utterances, it can be helpful to use a combination of questions, commands, and "I would like to..." formats.  
+
+Note too that there is one intent called "None".  Random utterances that don't map to any of your intents may be mapped to "None".  You are welcome to seed it with a few, like "Do you like peanut butter and jelly?"
+
+Now we are ready to train our model.  Click "Train & Test" in the left sidebar.  Then click the train button.  This builds a model to do utterance --> intent mapping with the training data you've provided.  
+
+Then click on "Publish App" in the left sidebar.  If you have not already done so, select the endpoint key that you set up earlier, or follow the link to create a new key in your Azure account.  You can leave the endpoint slot as "Production".  Then click "Publish".  
+
+![Publish LUIS App](./assets/PublishLuisApp.jpg) 
+
+Publishing creates an endpoint to call the LUIS model.  The URL will be displayed.  
+
+Click on "Train & Test" in the left sidebar.  Check the "Enable published model" box to have the calls go through the published endpoint rather than call the model directly.  Try typing a few utterances and see the intents returned.  
+
+![Test LUIS](./assets/TestLuis.jpg) 
+
+> Extra credit (to complete later): Create additional entities that can be leveraged by the "SearchPics" intent.  Try creating a prebuilt entity for age.  Also explore using custom entities of entity type "List" to capture things like gender or emotion.  Don't forget to update your "SearchPics" intent to use these entities.  
+
+![Custom Emotion Entity with List](./assets/CustomEmotionEntityWithList.jpg) 
+
+
+### Update Bot to use LUIS ###
+
+TODO: explain ScoreableGroups
+
+### Configure for Azure Search ###
+
+TODO: add stuff to Web.config
