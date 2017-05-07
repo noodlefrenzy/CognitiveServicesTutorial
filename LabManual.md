@@ -96,17 +96,25 @@ Once the app processes a given directory it will cache the resuls in a `ImageIns
 
 ## Exploring DocumentDB ##
 
+### TestCLI ###
+
+We have implemented the main processing and storage code as a command-line/console application - both because I (Mike Lanzetta) am a terrible designer, and because this allows you to concentrate on the processing code without having to worry about event loops, forms, or any other UX related distractions. Feel free to add your own UX later - and as mentioned we accept Pull Requests :)
+
+Once you've set your Cognitive Services API keys, your Azure Blob Storage Connection String, and your DocumentDB Endpoint URI and Key in your _TestCLI's_ `settings.json`, you can run the _TestCLI_. See below's _"Loading Image Using TestCLI"_ if you'd like to run it first - for now it will just connect to Blob Storage and Document DB, and print out the actions it _should be_ taking for each file you give it to process. It's your job to implement those actions, which we walk you through below.
+
 ### Implementing DocumentDBHelper ###
 
 With `ImageProcessing.sln` from the `Starting` directory open, look in the `ImageStorageLibrary` project for the `DocumentDBHelper.cs` class. Take a look for `NotImplementedException` and you'll notice quite a few in the file. These are _suggested_ operations - feel free to implement different ones instead if they suit your needs. Many of the implementations can be found in the [Getting Started guide](https://docs.microsoft.com/en-us/azure/documentdb/documentdb-get-started).
 
-Once you've implemented the operations in the helper, got to `TestCLI`'s `Util.cs` and notice that the `ImageMetadata` class has some gaps. We need to turn the `ImageInsights` we retrieve from Cognitive Services into appropriate Metadata to be stored into DocumentDB.
+Once you've implemented the operations in the helper, go to `TestCLI`'s `Util.cs` and notice that the `ImageMetadata` class has some gaps. We need to turn the `ImageInsights` we retrieve from Cognitive Services into appropriate Metadata to be stored into DocumentDB.
 
-Finally, look in `Program.cs` and notice in `ProcessDirectoryAsync` there's a `NotImplementedException` after we store the image into Blob Storage, but before we store its metadata. We should fix that as well.
+Finally, look in `Program.cs` and notice in `ProcessDirectoryAsync` there's a few `TODO` comments. First, we need to check if the image and metadata have already been uploaded - we can use `DocumentDBHelper` to find the document by ID - you should have implemented that above, to return `null` if the document doesn't exist. Next, if we've set `forceUpdate` or the image hasn't been processed before, we'll call the Cognitive Services using `ImageProcessor` from the `ImageProcessingLibrary` and retrieve the `ImageInsights`, which we add to our current `ImageMetadata`. 
+
+Once that's complete, we can store our image - first the actual image into Blob Storage using our `BlobStorageHelper` instance, and then the `ImageMetadata` into Document DB using our `DocumentDBHelper` instance. If the document already existed (based on our previous check), we should update the existing document. Otherwise, we should be creating a new one.
 
 ### Loading Images Using TestCLI ###
 
-Once you've set your Cognitive Services API keys, your Azure Blob Storage Connection String, and your DocumentDB Endpoint URI and Key in your _TestCLI's_ `settings.json`, and fixed all of the missing pieces above, you're ready to go. Build _TestCLI_, and run it:
+Now that you've fixed all of the missing pieces above, you're ready to go. Build _TestCLI_, and run it:
 
     > .\bin\Debug\TestCLI.exe
 
