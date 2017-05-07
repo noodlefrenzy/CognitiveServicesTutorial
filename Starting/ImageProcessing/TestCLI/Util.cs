@@ -41,6 +41,11 @@ namespace TestCLI
         /// <param name="insights"></param>
         public void AddInsights(ImageInsights insights)
         {
+            // TODO - Implement
+            // Examine ImageInsights and the properties below. Feel free to alter what you store here as you see fit.
+            // However, remember that alterations to the schema extend all the way through to the Azure Search Index,
+            //  so you'll need to tune your Bot Framework code as well to ensure your Azure Search queries function
+            //  as intended.
             throw new NotImplementedException();
         }
 
