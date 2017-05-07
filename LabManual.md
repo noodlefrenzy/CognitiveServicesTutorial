@@ -6,14 +6,14 @@ You may activate an Azure free trial at https://azure.microsoft.com/en-us/free/.
 
 If you have been given an Azure Pass to complete this lab, you may go to http://www.microsoftazurepass.com/ to activate it.  Please follow the instructions at https://www.microsoftazurepass.com/howto, which document the activation process.  A Microsoft account may have one free trial on Azure and one Azure Pass associated with it, so if you have already activated an Azure Pass on your Microsoft account, you will need to use the free trial or use another Microsoft account.
 
-## Navigating the Solution ##
+## Navigating the Solutions ##
 
 There are two main top-level directories:
 
 - **Starting**: This contains _skeleton_ code with parts missing that serves as the baseline for the tutorial. You should _start_ here.
 - **Finished**: We have included the _finished_ solution, so that you can examine our take on what the code should look like. If you fall behind during the tutorial session, feel free to take code from here and use it in your solution.
 
-In both, we have created a Solution (.sln) which contains several different projects, let's take a high-level look at them:
+In both, we have created a Solution (.sln) which contains several different projects for Phase 1, let's take a high-level look at them:
 
 - **ImageProcessingLibrary**: This is a Portable Class Library (PCL) containing helper classes for accessing the various Cognitive Services related to Vision, and some "Insights" classes for encapsulating the results.
 - **ImageStorageLibrary**: Since DocumentDB does not (yet) support UWP, this is a non-portable library for accessing Blob Storage and DocumentDB.
@@ -21,6 +21,10 @@ In both, we have created a Solution (.sln) which contains several different proj
 - **TestCLI**: A Console application allowing you to call the various cognitive services and then upload the images and data to Azure. Images are uploaded to Blob Storage, and the various metadata (tags, captions, faces) are uploaded to DocumentDB.
 
 Both _TestApp_ and _TestCLI_ contain a `settings.json` file containing the various keys and endpoints needed for accessing the Cognitive Services and Azure. They start blank, so once you get your Azure Pass up and running we can provision your service keys and set up your storage account and DocumentDB instance.
+
+**Finished** also contains a `PictureBot.sln` in the `PictureBot` directory. This is for Phase 3, where we integrate our Search Index into the Bot Framework.
+
+> If you don't have Visual Studio installed, no problem! See [the Appendix](./LabManual.html#Appendix) for details on setting up a Visual Studio VM in Azure.
 
 ## Navigating the Azure portal ##
 
@@ -812,6 +816,41 @@ Rebuild your project, and then right-click on the project in the Solution Explor
 Now you can navigate back to your bot's dashboard (something like https://dev.botframework.com/bots?id=TestPictureBot).  Try talking to it in the Chat window.  The carousel may look different in Web Chat than the emulator.  There is a great tool called the Channel Inspector to see the user experience of various controls in the different channels at https://docs.botframework.com/en-us/channel-inspector/channels/Skype/#navtitle.  
 From your bot's dashboard, you can add other channels, and try out your bot in Skype, Facebook Messenger, or Slack.  Simply click the "Add" button to the right of the channel name on your bot's dashboard, and follow the instructions.  
 
-## Further resources ##
+## Appendix ##
 
-[Bot Developer Portal](http://dev.botframework.com)
+### Further resources ###
+
+- [Cognitive Services](https://www.microsoft.com/cognitive-services)
+- [Document DB](https://azure.microsoft.com/en-us/services/documentdb/)
+- [Azure Search](https://azure.microsoft.com/en-us/services/search/)
+- [Bot Developer Portal](http://dev.botframework.com)
+
+### Setting Up a Visual Studio VM in Azure ###
+
+If you don't have Visual Studio installed (or don't want to worry about versions), or you're on a Mac, it's no big deal. Azure comes with several pre-configured VMs with Visual Studio installed. Let's stand up the latest version of Visual Studio Community Edition on a VM and I'll walk you through getting set up on that machine. 
+
+First, head to the portal and hit the "New" button, then type "visual studio" in the search box. It should bring up a whole family of VMs - we're selecting the VS2017 Community Edition on Windows Server 2016 (Windows 10 Enterprise N is limited to MSDN subscribers for now).
+
+![New VS2017 on Windows Server](./assets/new_visual_studio_vm.png)
+
+Once you've selected Create, you're presented with the typical VM creation form - fill it out, selecting a machine name, user and password you'll remember. 
+
+![Visual Studio VM Basics](./assets/new_visual_studio_vm_basics.png)
+
+As far as VM size, let's use the default it gives us (D2_V2). Just hit ok on the next two screens to start creation, and wait for the VM to provision (should take roughly five minutes).
+
+![Visual Studio VM Size](./assets/new_visual_studio_vm_size.png)
+
+Once your VM is created, hit "Connect" and it will download an RDP configuration file that should allow you to connect to the machine. On Windows, MSTSC is already installed and will automatically open when you double-click that file, but on Macs you might need to go to iTunes and install it yourself. When you open that file, log in using the credentials you specified on creation, and you'll be presented with a new Windows VM. Load up Visual Studio using the Start menu and once you sign in and it gets through the initial "first time use" screen you should be ready to go.
+
+### Loading the Project From Visual Studio ###
+
+If you've never used Git from within Visual Studio, it is easy to clone and open solutions directly from within the tool. From the File menu, just choose Open->Open from Source Control:
+
+![Open from Source Control](./assets/open_from_source_control.png)
+
+and that will load a window allowing you to clone a GitHub repo (well, any remote repo) locally:
+
+![Clone Locally](./assets/clone_to_local.png)
+
+Once you've cloned, you should be able to navigate the directory using the Solution Explorer and open the .sln file you want.
