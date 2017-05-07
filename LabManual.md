@@ -237,7 +237,7 @@ The code will launch in your default web browser in a URL similar to http://loca
 
 Make sure your project is still running (hit F5 again if you stopped to look at the project properties) and launch the Bot Framework Emulator.  Ensure that the Bot Url matches the port number that your code launched in above, and has api/messages appended to the end.  Now you should be able to converse with the bot.  
 
-TODO: picture of Bot Emulator
+![Bot Emulator](./assets/BotEmulator.jpg) 
 
 ### Add Intelligence to your Bot with LUIS ###
 
