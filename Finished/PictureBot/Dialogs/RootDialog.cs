@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Luis;
-using Microsoft.Bot.Builder.Scorables;
 using Microsoft.Bot.Builder.Luis.Models;
+using Microsoft.Bot.Builder.Scorables;
 using Microsoft.Bot.Connector;
-using System.Collections.Generic;
 
 namespace PictureBot.Dialogs
 {
@@ -18,7 +18,7 @@ namespace PictureBot.Dialogs
         [ScorableGroup(0)]
         public async Task Hello(IDialogContext context, IActivity activity)
         {
-            await context.PostAsync("Hello from RegEx!  I am a Photo Organization Bot.  You can ask me things like 'find pictures of food'.  I can also share your photos on Twitter.");
+            await context.PostAsync("Hello from RegEx!  I am a Photo Organization Bot.  I can search your photos, share your photos on Twitter, and order prints of your photos.  You can ask me things like 'find pictures of food'.");
         }
 
         [RegexPattern("^help")]
@@ -45,13 +45,15 @@ namespace PictureBot.Dialogs
                     await SharePic(context, null);
                     break;
                 case "Order Prints":
-                    // TODO: add this
+                    await OrderPic(context, null);
+                    break;
                 default:
                     await context.PostAsync("I'm sorry. I didn't understand you.");
                     break;
             }
         }
 
+        [LuisIntent("")]
         [LuisIntent("None")]
         [ScorableGroup(1)]
         public async Task None(IDialogContext context, LuisResult result)
@@ -61,12 +63,19 @@ namespace PictureBot.Dialogs
             ContinueWithNextGroup();
         }
 
+        [LuisIntent("Greeting")]
+        [ScorableGroup(1)]
+        public async Task Greeting(IDialogContext context, LuisResult result)
+        {
+            // Duplicate logic, for a teachable moment on Scorables.  
+            await context.PostAsync("Hello from LUIS!  I am a Photo Organization Bot.  I can search your photos, share your photos on Twitter, and order prints of your photos.  You can ask me things like 'find pictures of food'.");
+        }
+
         [LuisIntent("SearchPics")]
         [ScorableGroup(1)]
         public async Task SearchPics(IDialogContext context, LuisResult result)
         {
             // Check if LUIS has identified the search term that we should look for.  
-
             string facet = null;
             EntityRecommendation rec;
             if (result.TryFindEntity("facet", out rec)) facet = rec.Entity;
@@ -94,8 +103,14 @@ namespace PictureBot.Dialogs
 
         private async Task ResumeAfterSearchDialog(IDialogContext context, IAwaitable<object> result)
         {
-            // TODO: remove if this isn't used
             await context.PostAsync("Done searching pictures");
+        }
+
+        [LuisIntent("OrderPic")]
+        [ScorableGroup(1)]
+        public async Task OrderPic(IDialogContext context, LuisResult result)
+        {
+            await context.PostAsync("Ordering your pictures...");
         }
 
         [LuisIntent("SharePic")]
@@ -108,10 +123,12 @@ namespace PictureBot.Dialogs
 
         private async Task AfterShareAsync(IDialogContext context, IAwaitable<bool> result)
         {
+            // This is a different way to get an awaiter!  Which do you like better?  
             if (result.GetAwaiter().GetResult() == true)
             {
                 // Yes, share the picture.
-                // TODO: add code to post a tweet
+                // NOTE: for purposes of this hands-on lab, we are not going to bother to get everyone set
+                // up with Twitter dev accounts and actually post, but feel free to implement if you want!
                 await context.PostAsync("Posting tweet.");
             }
             else
@@ -121,22 +138,13 @@ namespace PictureBot.Dialogs
             }
         }
 
-        [LuisIntent("Greeting")]
-        [ScorableGroup(1)]
-        public async Task Greeting(IDialogContext context, LuisResult result)
-        {
-            // TODO: remove this?
-            // Duplicate logic, for a teachable moment.  Try commenting out the "hello" RegEx above!  
-            await context.PostAsync("Hello from LUIS!  I am a Photo Organization Bot.  You can ask me things like 'find pictures of food'.  I can also share your photos on Twitter.");
-        }
-
         // Since none of the scorables in previous group won, the dialog sends a help message.
         [MethodBind]
         [ScorableGroup(2)]
         public async Task Default(IDialogContext context, IActivity activity)
         {
             await context.PostAsync("I'm sorry. I didn't understand you.");
-            await context.PostAsync("You can tell me to find photos and tweet them.  Here is an example: \"find pictures of food\"");
+            await context.PostAsync("You can tell me to find photos, tweet them, and order prints.  Here is an example: \"find pictures of food\".  Or say \"help\" for a lovely button menu!");
         }
 
     }
