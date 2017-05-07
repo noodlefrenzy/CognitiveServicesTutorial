@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
 using Microsoft.Bot.Builder.Dialogs;
@@ -16,16 +15,16 @@ namespace PictureBot.Dialogs
     public class SearchDialog : IDialog<object>
     {
         private string searchText = "";
-        
+        private static ISearchIndexClient indexClientForQueries = null;
+
         public SearchDialog(string facet)
         {
             searchText = facet;
+            indexClientForQueries = CreateSearchIndexClient();
         }
 
         public async Task StartAsync(IDialogContext context)
         {
-            ISearchIndexClient indexClientForQueries = CreateSearchIndexClient();
-
             // For more examples of calling search with SearchParameters, see
             // https://github.com/Azure-Samples/search-dotnet-getting-started/blob/master/DotNetHowTo/DotNetHowTo/Program.cs.  
 
@@ -57,12 +56,15 @@ namespace PictureBot.Dialogs
 
         private ISearchIndexClient CreateSearchIndexClient()
         {
-            string searchServiceName = ConfigurationManager.AppSettings["SearchDialogsServiceName"];
-            string queryApiKey = ConfigurationManager.AppSettings["SearchDialogsServiceKey"];
-            string indexName = ConfigurationManager.AppSettings["SearchDialogsIndexName"];
-            
-            SearchIndexClient indexClient = new SearchIndexClient(searchServiceName, indexName, new SearchCredentials(queryApiKey));
-            return indexClient;
+            if (indexClientForQueries == null)
+            {
+                string searchServiceName = ConfigurationManager.AppSettings["SearchDialogsServiceName"];
+                string queryApiKey = ConfigurationManager.AppSettings["SearchDialogsServiceKey"];
+                string indexName = ConfigurationManager.AppSettings["SearchDialogsIndexName"];
+
+                indexClientForQueries = new SearchIndexClient(searchServiceName, indexName, new SearchCredentials(queryApiKey));
+            }
+            return indexClientForQueries;
         }
 
         [Serializable]
