@@ -5,6 +5,7 @@ using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Scorables;
 using Microsoft.Bot.Builder.Luis.Models;
 using Microsoft.Bot.Connector;
+using System.Collections.Generic;
 
 namespace PictureBot.Dialogs
 {
@@ -12,19 +13,6 @@ namespace PictureBot.Dialogs
     [Serializable]
     public class RootDialog : DispatchDialog
     {
-        //private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
-        //{
-        //    var activity = await result as Activity;
-
-        //    // calculate something for us to return
-        //    int length = (activity.Text ?? string.Empty).Length;
-
-        //    // return our reply to the user
-        //    await context.PostAsync($"You sent {activity.Text} which was {length} characters");
-
-        //    context.Wait(MessageReceivedAsync);
-        //}
-
         [RegexPattern("^hello")]
         [RegexPattern("^hi")]
         [ScorableGroup(0)]
@@ -37,8 +25,31 @@ namespace PictureBot.Dialogs
         [ScorableGroup(0)]
         public async Task Help(IDialogContext context, IActivity activity)
         {
-            // TODO: launch help dialog with button menu.  
-            await context.PostAsync("TODO: help info");
+            // Launch help dialog with button menu  
+            List<string> choices = new List<string>(new string[] { "Search Pictures", "Share Picture", "Order Prints" });
+            PromptDialog.Choice<string>(context, ResumeAfterChoice, 
+                new PromptOptions<string>("How can I help you?", options:choices));
+        }
+
+        private async Task ResumeAfterChoice(IDialogContext context, IAwaitable<string> result)
+        {
+            string choice = await result;
+            
+            switch (choice)
+            {
+                case "Search Pictures":
+                    PromptDialog.Text(context, ResumeAfterSearchTopicClarification,
+                        "What kind of picture do you want to search for?");
+                    break;
+                case "Share Picture":
+                    await SharePic(context, null);
+                    break;
+                case "Order Prints":
+                    // TODO: add this
+                default:
+                    await context.PostAsync("I'm sorry. I didn't understand you.");
+                    break;
+            }
         }
 
         [LuisIntent("None")]
@@ -54,21 +65,30 @@ namespace PictureBot.Dialogs
         [ScorableGroup(1)]
         public async Task SearchPics(IDialogContext context, LuisResult result)
         {
-            // TODO: change LUIS to only have facet entity?  
-            // TODO: LUIS deserialization errors with entities - fixed?  
-            string gender = null;
-            string age = null;
-            string emotion = null;
+            // Check if LUIS has identified the search term that we should look for.  
             string facet = null;
-
             EntityRecommendation rec;
-            if (result.TryFindEntity("gender", out rec)) gender = rec.Entity;
-            if (result.TryFindEntity("age", out rec)) age = rec.Entity;
-            if (result.TryFindEntity("emotion", out rec)) emotion = rec.Entity;
             if (result.TryFindEntity("facet", out rec)) facet = rec.Entity;
 
-            await context.PostAsync($"Searching pictures...");
-            context.Call(new SearchDialog(facet), ResumeAfterSearchDialog);
+            // If we don't know what to search for (for example, the user said
+            // "find pictures" or "search" instead of "find pictures of x"),
+            // then prompt for a search term.  
+            if (string.IsNullOrEmpty(facet))
+            {
+                PromptDialog.Text(context, ResumeAfterSearchTopicClarification,
+                    "What kind of picture do you want to search for?");
+            }
+            else
+            {
+                await context.PostAsync("Searching pictures...");
+                context.Call(new SearchDialog(facet), ResumeAfterSearchDialog);
+            }
+        }
+
+        private async Task ResumeAfterSearchTopicClarification(IDialogContext context, IAwaitable<string> result)
+        {
+            string searchTerm = await result;
+            context.Call(new SearchDialog(searchTerm), ResumeAfterSearchDialog);
         }
 
         private async Task ResumeAfterSearchDialog(IDialogContext context, IAwaitable<object> result)
@@ -90,8 +110,8 @@ namespace PictureBot.Dialogs
             if (result.GetAwaiter().GetResult() == true)
             {
                 // Yes, share the picture.
-                // TODO: change this code to post a tweet
-                await context.PostAsync("Posting tweet...");
+                // TODO: add code to post a tweet
+                await context.PostAsync("Posting tweet.");
             }
             else
             {
