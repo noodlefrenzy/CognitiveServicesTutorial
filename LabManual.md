@@ -421,12 +421,12 @@ First, we need to provide our bot with the relevant information to connect to an
 
 Open Web.config and in the appSettings section, add the following:
 
-'''
+```xml    
     <!-- Azure Search Settings -->
     <add key="SearchDialogsServiceName" value="" />
     <add key="SearchDialogsServiceKey" value="" />
     <add key="SearchDialogsIndexName" value="images" />
-'''
+```
 
 Set the value for the SearchDialogsServiceName to be the name of the Azure Search Service that you created earlier.  If needed, go back and look this up in the [Azure portal](https://portal.azure.com).  
 
