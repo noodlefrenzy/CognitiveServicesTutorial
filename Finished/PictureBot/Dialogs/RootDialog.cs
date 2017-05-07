@@ -66,6 +66,7 @@ namespace PictureBot.Dialogs
         public async Task SearchPics(IDialogContext context, LuisResult result)
         {
             // Check if LUIS has identified the search term that we should look for.  
+
             string facet = null;
             EntityRecommendation rec;
             if (result.TryFindEntity("facet", out rec)) facet = rec.Entity;
