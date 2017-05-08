@@ -54,6 +54,8 @@ namespace ImageStorageLibrary
         public async Task<Tuple<bool, T>> CreateDocumentIfNotExistsAsync<T>(T document, string id)
             where T : new()
         {
+            // TODO: Implement - see the Getting Started Guide for details
+            // https://docs.microsoft.com/en-us/azure/documentdb/documentdb-get-started
             throw new NotImplementedException();
         }
 
@@ -67,6 +69,8 @@ namespace ImageStorageLibrary
         public async Task<T> UpdateDocumentAsync<T>(T update, string id)
             where T : new()
         {
+            // TODO: Implement - see the Getting Started Guide for details
+            // https://docs.microsoft.com/en-us/azure/documentdb/documentdb-get-started
             throw new NotImplementedException();
         }
 
@@ -78,6 +82,8 @@ namespace ImageStorageLibrary
         public IQueryable<T> FindAllDocuments<T>()
             where T : new()
         {
+            // TODO: Implement - see the Getting Started Guide for details
+            // https://docs.microsoft.com/en-us/azure/documentdb/documentdb-get-started
             throw new NotImplementedException();
         }
 
@@ -90,6 +96,8 @@ namespace ImageStorageLibrary
         public IQueryable<T> FindMatchingDocuments<T>(string query)
             where T : new()
         {
+            // TODO: Implement - see the Getting Started Guide for details
+            // https://docs.microsoft.com/en-us/azure/documentdb/documentdb-get-started
             throw new NotImplementedException();
         }
 
@@ -102,6 +110,8 @@ namespace ImageStorageLibrary
         public async Task<T> FindDocumentByIdAsync<T>(string id)
             where T : new()
         {
+            // TODO: Implement - see the Getting Started Guide for details
+            // https://docs.microsoft.com/en-us/azure/documentdb/documentdb-get-started
             throw new NotImplementedException();
         }
 
