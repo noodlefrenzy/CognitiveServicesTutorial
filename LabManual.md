@@ -145,7 +145,7 @@ Head back to the portal and navigate to your Document DB instance. Now that you'
 
 ![DocumentDB Data Explorer](./assets/docdb-data-explorer.png)
 
-Now click on _New Query_. It should start up with `SELECT * from c` in the query window. Let's play around with the query syntax - take a look at the [DocumentDB SQL syntax reference](https://msdn.microsoft.com/en-us/library/azure/dn782250.aspx). We know from the sample images that several contain a man or woman, so let's look for those:
+Now click on _Query Explorer_ at left pane (below Data Explorer). It should start up with `SELECT * from c` in the query window. Let's play around with the query syntax - take a look at the [DocumentDB SQL syntax reference](https://msdn.microsoft.com/en-us/library/azure/dn782250.aspx). We know from the sample images that several contain a man or woman, so let's look for those:
 
 ![DocumentDB Query](./assets/docdb-query-explorer.png)
 
