@@ -24,7 +24,7 @@ Both _TestApp_ and _TestCLI_ contain a `settings.json` file containing the vario
 
 **Finished** also contains a `PictureBot.sln` in the `PictureBot` directory. This is for Phase 3, where we integrate our Search Index into the Bot Framework.
 
-> If you don't have Visual Studio installed, no problem! See [the Appendix](./LabManual.html#Appendix) for details on setting up a Visual Studio VM in Azure.
+> If you don't have Visual Studio installed, no problem! See [the Appendix](#Appendix) for details on setting up a Visual Studio VM in Azure.
 
 ## Navigating the Azure portal ##
 
@@ -834,9 +834,19 @@ Finally, you need to update your bot with its registration information.  Return 
 Rebuild your project, and then right-click on the project in the Solution Explorer and select "Publish" again.  Your settings should be remembered from last time, so you can just hit "Publish".  
 
 Now you can navigate back to your bot's dashboard (something like https://dev.botframework.com/bots?id=TestPictureBot).  Try talking to it in the Chat window.  The carousel may look different in Web Chat than the emulator.  There is a great tool called the Channel Inspector to see the user experience of various controls in the different channels at https://docs.botframework.com/en-us/channel-inspector/channels/Skype/#navtitle.  
-From your bot's dashboard, you can add other channels, and try out your bot in Skype, Facebook Messenger, or Slack.  Simply click the "Add" button to the right of the channel name on your bot's dashboard, and follow the instructions.  
+From your bot's dashboard, you can add other channels, and try out your bot in Skype, Facebook Messenger, or Slack.  Simply click the "Add" button to the right of the channel name on your bot's dashboard, and follow the instructions.
 
-## Appendix ##
+### Extra Credit 2 ###
+
+If you've finished your bot and there is time remaining, you have a couple of "extra credit" options.
+
+First, the Bot Framework supports a variety of channels. Consider extending your bot to the other channels available - try wiring it up to Facebook (see the [Configuring Channels](https://docs.botframework.com/en-us/csharp/builder/sdkreference/gettingstarted.html#channels) section, and also look in [the Developer portal](https://dev.botframework.com/)).
+
+Second, try extending your bot in various ways. Are there other intents you can think of that you'd like your LUIS model to support? Try adding new intents and experimenting with retraining your model! Try adding "chit-chat" functionality to make your bot feel more intelligent.
+
+Third, try experimenting with more advanced Azure Search queries. Add term-boosting by extending your LUIS model to recognize entities like _"find happy people"_, turning those into boosted queries against _TopEmotion_ using [Term Boosting](https://docs.microsoft.com/en-us/rest/api/searchservice/Lucene-query-syntax-in-Azure-Search#bkmk_termboost).
+
+## <a name="Appendix"></a>Appendix ##
 
 ### Further resources ###
 
