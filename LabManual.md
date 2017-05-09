@@ -139,6 +139,26 @@ Once it's done processing, you can query against your DocumentDB directly using 
 
     > .\bin\Debug\TestCLI.exe -query "select * from images"
 
+### Document DB Data Explorer ###
+
+Head back to the portal and navigate to your Document DB instance. Now that you've loaded data into your collection, you can use Document DB's _Data Explorer_ (currently in Preview) to navigate your data. Click on _Data Explorer_, then _Documents_ and select a _Document_ to see the payload. 
+
+![DocumentDB Data Explorer](./assets/docdb-data-explorer.png)
+
+Now click on _New Query_. It should start up with `SELECT * from c` in the query window. Let's play around with the query syntax - take a look at the [DocumentDB SQL syntax reference](https://msdn.microsoft.com/en-us/library/azure/dn782250.aspx). We know from the sample images that several contain a man or woman, so let's look for those:
+
+![DocumentDB Query](./assets/docdb-query-explorer.png)
+
+Feel free to experiment with the syntax.
+
+### Finished Early ###
+
+#### Extra Credit 1 ####
+
+What if we needed to port our application to another language? Modify your code to call the [Translator API](https://azure.microsoft.com/en-us/services/cognitive-services/translator-text-api/) on the caption and tags you get back from the Vision service.
+
+Look into the _Image Processing Library_ at the _Service Helpers_. You can copy one of these and use it to invoke the [Translator API](https://docs.microsofttranslator.com/text-translate.html). Now you can hook this into the `ImageProcessor.cs`. Try adding translated versions to your `ImageInsights` class, and then wire it through to the DocuementDB `ImageMetadata` class. 
+
 ## Building an Azure Search Index ## 
 
 ### Create an Azure Search Service ### 
@@ -223,7 +243,7 @@ Click **Search** to search for all documents.
 ### Setting up for Bot Development ###
 
 We will be developing a bot using the C# SDK.  To get started, you need two things:
-1. The Bot Framework project template, which you can download from http://aka.ms/bf-bc-vstemplate.  The file is called "Bot Application.zip" and you should save it into the <Documents>\Visual Studio 2015\Templates\ProjectTemplates\Visual C#\ directory.  Just drop the whole zipped file in there; no need to unzip.  
+1. The Bot Framework project template, which you can download from http://aka.ms/bf-bc-vstemplate.  The file is called "Bot Application.zip" and you should save it into the &lt;Documents&gt;\Visual Studio 2015\Templates\ProjectTemplates\Visual C#\ directory (_note: if you're on VS2017, adjust the path accordingly_).  Just drop the whole zipped file in there; no need to unzip.  
 2. Download the Bot Framework Emulator for testing your bot locally from https://emulator.botframework.com/.  
 
 ### Create a Simple Bot ###
@@ -841,7 +861,19 @@ As far as VM size, let's use the default it gives us (D2_V2). Just hit ok on the
 
 ![Visual Studio VM Size](./assets/new_visual_studio_vm_size.png)
 
-Once your VM is created, hit "Connect" and it will download an RDP configuration file that should allow you to connect to the machine. On Windows, MSTSC is already installed and will automatically open when you double-click that file, but on Macs you might need to install [Microsoft Remote Desktop from the App Store](https://itunes.apple.com/us/app/microsoft-remote-desktop/id715768417?mt=12). When you open that file, log in using the credentials you specified on creation, and you'll be presented with a new Windows VM. Load up Visual Studio using the Start menu and once you sign in and it gets through the initial "first time use" screen you should be ready to go.
+### Connecting to your VM ###
+
+#### From a Windows PC ####
+
+Once your VM is created, hit "Connect" and it will download an RDP configuration file that should allow you to connect to the machine. On Windows, MSTSC is already installed and will automatically open when you double-click that file, log in using the credentials you specified on creation, and you'll be presented with a new Windows VM. Load up Visual Studio using the Start menu and once you sign in and it gets through the initial "first time use" screen you should be ready to go.
+
+#### From a Mac ####
+
+If you're using a Mac you may need to install [Microsoft Remote Desktop from the App Store](https://itunes.apple.com/us/app/microsoft-remote-desktop/id715768417?mt=12), which will allow you to connect to the Windows VM you've created and use it as if you were sitting in front of it. Once you've got Remote Desktop running, click New to create a new connection, give your connection a name, and enter the Public IP address of your VM in the "PC name" field. You can enter your User name and Password too, if you want to have them automatically sent every time you log in. 
+
+![Connecting to your VM from a Mac](./assets/macrdp.png) 
+
+Close the "Edit remote desktops" window, then double-click your new connection to launch a remote desktop session to your VM. Load up Visual Studio using the Start menu and once you sign in and it gets through the initial "first time use" screen you should be ready to go.
 
 ### Loading the Project From Visual Studio ###
 
