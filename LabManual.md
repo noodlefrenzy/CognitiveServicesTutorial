@@ -244,7 +244,7 @@ Click **Search** to search for all documents.
 
 We will be developing a bot using the C# SDK.  To get started, you need two things:
 1. The Bot Framework project template, which you can download from http://aka.ms/bf-bc-vstemplate.  The file is called "Bot Application.zip" and you should save it into the &lt;Documents&gt;\Visual Studio 2015\Templates\ProjectTemplates\Visual C#\ directory (_note: if you're on VS2017, adjust the path accordingly_).  Just drop the whole zipped file in there; no need to unzip.  
-2. Download the Bot Framework Emulator for testing your bot locally from https://emulator.botframework.com/.  
+2. Download the Bot Framework Emulator for testing your bot locally from https://emulator.botframework.com/.  The emulator installs to `c:\Users\`_your-username_`\AppData\Local\botframework\app-3.5.27\botframework-emulator.exe`.  
 
 ### Create a Simple Bot ###
 
@@ -267,9 +267,9 @@ The code will launch in your default web browser in a URL similar to http://loca
 
 ![Bot Project URL](./assets/BotProjectUrl.jpg) 
 
-Make sure your project is still running (hit F5 again if you stopped to look at the project properties) and launch the Bot Framework Emulator.  Ensure that the Bot Url matches the port number that your code launched in above, and has api/messages appended to the end.  Now you should be able to converse with the bot.  
+Make sure your project is still running (hit F5 again if you stopped to look at the project properties) and launch the Bot Framework Emulator.  (If you just installed it, it may not be indexed to show up in a search on your local machine, so remember that it installs to c:\Users\your-username\AppData\Local\botframework\app-3.5.27\botframework-emulator.exe.)  Ensure that the Bot Url matches the port number that your code launched in above, and has api/messages appended to the end.  Now you should be able to converse with the bot.  
 
-![Bot Emulator](./assets/BotEmulator.jpg) 
+![Bot Emulator](./assets/BotEmulator.png) 
 
 ### Add Intelligence to your Bot with LUIS ###
 
@@ -871,7 +871,19 @@ As far as VM size, let's use the default it gives us (D2_V2). Just hit ok on the
 
 ![Visual Studio VM Size](./assets/new_visual_studio_vm_size.png)
 
-Once your VM is created, hit "Connect" and it will download an RDP configuration file that should allow you to connect to the machine. On Windows, MSTSC is already installed and will automatically open when you double-click that file, but on Macs you might need to install [Microsoft Remote Desktop from the App Store](https://itunes.apple.com/us/app/microsoft-remote-desktop/id715768417?mt=12). When you open that file, log in using the credentials you specified on creation, and you'll be presented with a new Windows VM. Load up Visual Studio using the Start menu and once you sign in and it gets through the initial "first time use" screen you should be ready to go.
+### Connecting to your VM ###
+
+#### From a Windows PC ####
+
+Once your VM is created, hit "Connect" and it will download an RDP configuration file that should allow you to connect to the machine. On Windows, MSTSC is already installed and will automatically open when you double-click that file, log in using the credentials you specified on creation, and you'll be presented with a new Windows VM. Load up Visual Studio using the Start menu and once you sign in and it gets through the initial "first time use" screen you should be ready to go.
+
+#### From a Mac ####
+
+If you're using a Mac you may need to install [Microsoft Remote Desktop from the App Store](https://itunes.apple.com/us/app/microsoft-remote-desktop/id715768417?mt=12), which will allow you to connect to the Windows VM you've created and use it as if you were sitting in front of it. Once you've got Remote Desktop running, click New to create a new connection, give your connection a name, and enter the Public IP address of your VM in the "PC name" field. You can enter your User name and Password too, if you want to have them automatically sent every time you log in. 
+
+![Connecting to your VM from a Mac](./assets/macrdp.png) 
+
+Close the "Edit remote desktops" window, then double-click your new connection to launch a remote desktop session to your VM. Load up Visual Studio using the Start menu and once you sign in and it gets through the initial "first time use" screen you should be ready to go.
 
 ### Loading the Project From Visual Studio ###
 
