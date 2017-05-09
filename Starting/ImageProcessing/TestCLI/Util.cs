@@ -89,18 +89,17 @@ namespace TestCLI
                 var height = origImg.Height;
                 if (width > maxDim || height > maxDim)
                 {
-                    double aspect = width / (double) height;
-                    if (width > maxDim)
+                    if (width >= height)
                     {
                         width = maxDim;
-                        height = (int) (height / aspect);
+                        height = (int)((float)(maxDim * origImg.Height) / ((float)origImg.Width));
                     }
-                    if (height > maxDim)
+                    else
                     {
-                        aspect = width / (double) height;
                         height = maxDim;
-                        width = (int) (height * aspect);
+                        width = (int)((float)(maxDim * origImg.Width) / ((float)origImg.Height));
                     }
+
                     var resizedImageFile = Path.GetTempFileName();
                     using (var resultingImg = (Image)(new Bitmap(origImg, new Size(width, height))))
                         resultingImg.Save(resizedImageFile, ImageFormat.Png);
