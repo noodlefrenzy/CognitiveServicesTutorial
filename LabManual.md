@@ -250,7 +250,7 @@ After you have installed it, take a query from the Azure Search explorer and pas
 Click on Headers and enter the following parameters:
 
 + Content Type: application/json
-+ api-key: [Enter your API key from the Azure Search potal under the "Keys" section
++ api-key: [Enter your API key from the Azure Search potal under the "Keys" section]
 
 Choose send and you should see the data formatted in JSON format.
 
