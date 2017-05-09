@@ -237,6 +237,24 @@ Click **Search** to search for all documents.
 
 ![Search Explorer](./assets/AzureSearch-SearchExplorer.png) 
 
+### Finished Early ###
+
+#### Extra Credit 1 ####
+
+> Fun Aside: [Postman](https://www.getpostman.com/) is a great tool that allows you to easily execute Azure Search REST API calls and is a great debugging tool.  You can take any query from the Azure Search Explorer and along with an Azure Search API key to be executed within Postman.
+
+Download the [Postman](https://www.getpostman.com/) tool and install it. 
+
+After you have installed it, take a query from the Azure Search explorer and paste it into Postman, choosing GET as the request type.  
+
+Click on Headers and enter the following parameters:
+
++ Content Type: application/json
++ api-key: [Enter your API key from the Azure Search potal under the "Keys" section
+
+Choose send and you should see the data formatted in JSON format.
+
+Try performing other searches using [examples such as these](https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#a-namebkmkexamplesa-examples).
 
 ## Building a Bot ##
 
