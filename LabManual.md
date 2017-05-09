@@ -244,7 +244,7 @@ Click **Search** to search for all documents.
 
 We will be developing a bot using the C# SDK.  To get started, you need two things:
 1. The Bot Framework project template, which you can download from http://aka.ms/bf-bc-vstemplate.  The file is called "Bot Application.zip" and you should save it into the &lt;Documents&gt;\Visual Studio 2015\Templates\ProjectTemplates\Visual C#\ directory (_note: if you're on VS2017, adjust the path accordingly_).  Just drop the whole zipped file in there; no need to unzip.  
-2. Download the Bot Framework Emulator for testing your bot locally from https://emulator.botframework.com/.  
+2. Download the Bot Framework Emulator for testing your bot locally from https://emulator.botframework.com/.  The emulator installs to c:\Users\your-username\AppData\Local\botframework\app-3.5.27\botframework-emulator.exe.  
 
 ### Create a Simple Bot ###
 
@@ -267,9 +267,9 @@ The code will launch in your default web browser in a URL similar to http://loca
 
 ![Bot Project URL](./assets/BotProjectUrl.jpg) 
 
-Make sure your project is still running (hit F5 again if you stopped to look at the project properties) and launch the Bot Framework Emulator.  Ensure that the Bot Url matches the port number that your code launched in above, and has api/messages appended to the end.  Now you should be able to converse with the bot.  
+Make sure your project is still running (hit F5 again if you stopped to look at the project properties) and launch the Bot Framework Emulator.  (If you just installed it, it may not be indexed to show up in a search on your local machine, so remember that it installs to c:\Users\your-username\AppData\Local\botframework\app-3.5.27\botframework-emulator.exe.)  Ensure that the Bot Url matches the port number that your code launched in above, and has api/messages appended to the end.  Now you should be able to converse with the bot.  
 
-![Bot Emulator](./assets/BotEmulator.jpg) 
+![Bot Emulator](./assets/BotEmulator.png) 
 
 ### Add Intelligence to your Bot with LUIS ###
 
