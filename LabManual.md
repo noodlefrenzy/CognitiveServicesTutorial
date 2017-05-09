@@ -844,7 +844,7 @@ First, the Bot Framework supports a variety of channels. Consider extending your
 
 Second, try extending your bot in various ways. Are there other intents you can think of that you'd like your LUIS model to support? Try adding new intents and experimenting with retraining your model! Try adding "chit-chat" functionality to make your bot feel more intelligent.
 
-Third, try experimenting with more advanced Azure Search queries. Add term-boosting by extending your LUIS model to recognize entities like _"find happy people"_, turning those into boosted queries against _TopEmotion_ using [Term Boosting](https://docs.microsoft.com/en-us/rest/api/searchservice/Lucene-query-syntax-in-Azure-Search#bkmk_termboost).
+Third, try experimenting with more advanced Azure Search queries. Add term-boosting by extending your LUIS model to recognize entities like _"find happy people"_, mapping "happy" to "happiness" (the emotion returned from Cognitive Services), and turning those into boosted queries using [Term Boosting](https://docs.microsoft.com/en-us/rest/api/searchservice/Lucene-query-syntax-in-Azure-Search#bkmk_termboost). 
 
 ## <a name="Appendix"></a>Appendix ##
 
