@@ -16,11 +16,11 @@ There are two main top-level directories:
 In both, we have created a Solution (.sln) which contains several different projects for Phase 1, let's take a high-level look at them:
 
 - **ImageProcessingLibrary**: This is a Portable Class Library (PCL) containing helper classes for accessing the various Cognitive Services related to Vision, and some "Insights" classes for encapsulating the results.
-- **ImageStorageLibrary**: Since DocumentDB does not (yet) support UWP, this is a non-portable library for accessing Blob Storage and DocumentDB.
+- **ImageStorageLibrary**: Since Cosmos DB does not (yet) support UWP, this is a non-portable library for accessing Blob Storage and Cosmos DB.
 - **TestApp**: A UWP application that allows you to load your images and call the various cognitive services on them, then explore the results. Useful for experimentation and exploration of your images.
-- **TestCLI**: A Console application allowing you to call the various cognitive services and then upload the images and data to Azure. Images are uploaded to Blob Storage, and the various metadata (tags, captions, faces) are uploaded to DocumentDB.
+- **TestCLI**: A Console application allowing you to call the various cognitive services and then upload the images and data to Azure. Images are uploaded to Blob Storage, and the various metadata (tags, captions, faces) are uploaded to Cosmos DB.
 
-Both _TestApp_ and _TestCLI_ contain a `settings.json` file containing the various keys and endpoints needed for accessing the Cognitive Services and Azure. They start blank, so once you get your Azure Pass up and running we can provision your service keys and set up your storage account and DocumentDB instance.
+Both _TestApp_ and _TestCLI_ contain a `settings.json` file containing the various keys and endpoints needed for accessing the Cognitive Services and Azure. They start blank, so once you get your Azure Pass up and running we can provision your service keys and set up your storage account and Cosmos DB instance.
 
 **Finished** also contains a `PictureBot.sln` in the `PictureBot` directory. This is for Phase 3, where we integrate our Search Index into the Bot Framework.
 
@@ -38,7 +38,7 @@ In the Portal, hit **New** and then enter **cognitive** in the search box and ch
 
 ![Creating a Cognitive Service Key](./assets/new-cognitive-services.PNG)
 
-This will lead you to fill out a few details for the API endpoint you'll be creating, choosing the API you're interested in and where you'd like your endpoint to reside, as well as what pricing plan you'd like. We'll be using S1 so that we have the throughput we need for the tutorial, and creating a new _Resource Group_. We'll be using this same resource group below for our Blob Storage and DocumentDB, so pick something you like. _Pin to dashboard_ so that you can easily find it. Since the Computer Vision API stores images internally at Microsoft (in a secure fashion) to help improve future Cognitive Services Vision offerings, you'll need to _Enable_ Account creation. This can be a stumbling block for users in Enterprise environment, as only Subscription Administrators have the right to enable this, but for Azure Pass users it's not an issue.
+This will lead you to fill out a few details for the API endpoint you'll be creating, choosing the API you're interested in and where you'd like your endpoint to reside, as well as what pricing plan you'd like. We'll be using S1 so that we have the throughput we need for the tutorial, and creating a new _Resource Group_. We'll be using this same resource group below for our Blob Storage and Cosmos DB, so pick something you like. _Pin to dashboard_ so that you can easily find it. Since the Computer Vision API stores images internally at Microsoft (in a secure fashion) to help improve future Cognitive Services Vision offerings, you'll need to _Enable_ Account creation. This can be a stumbling block for users in Enterprise environment, as only Subscription Administrators have the right to enable this, but for Azure Pass users it's not an issue.
 
 ![Choosing Cognitive Services Details](./assets/cognitive-account-creation.PNG) 
 
@@ -52,7 +52,7 @@ Since we'll be using [LUIS](https://www.microsoft.com/cognitive-services/en-us/l
 
 ## Setting up Storage ##
 
-We'll be using two different stores in Azure for this project - one for storing the raw images, and the other for storing the results of our Cognitive Service calls. Azure Blob Storage is made for storing large amounts of data in a format that looks similar to a file-system, and is a great choice for storing data like images. Azure DocumentDB is our resilient NoSQL PaaS solution, and is incredibly useful for storing loosely structured data like we have with our image metadata results. There are other possible choices (Azure Table Storage, SQL Server), but DocumentDB gives us the flexibility to evolve our schema freely (like adding data for new services), query it easily, and can be quickly integrated into Azure Search.
+We'll be using two different stores in Azure for this project - one for storing the raw images, and the other for storing the results of our Cognitive Service calls. Azure Blob Storage is made for storing large amounts of data in a format that looks similar to a file-system, and is a great choice for storing data like images. Azure Cosmos DB is our resilient NoSQL PaaS solution, and is incredibly useful for storing loosely structured data like we have with our image metadata results. There are other possible choices (Azure Table Storage, SQL Server), but Cosmos DB gives us the flexibility to evolve our schema freely (like adding data for new services), query it easily, and can be quickly integrated into Azure Search.
 
 ### Azure Blob Storage ###
 
@@ -68,23 +68,23 @@ Now that you have an Azure Storage account, let's grab the _Connection String_ a
 
 ![Azure Blob Keys](./assets/blob-storage-keys.PNG)
 
-### DocumentDB ###
+### Cosmos DB ###
 
 Detailed "Getting Started" instructions can be [found online](https://docs.microsoft.com/en-us/azure/documentdb/documentdb-get-started), but we'll walk through what you need for this project here.
 
-Within the Azure Portal, click **New->Databases->NoSQL (DocumentDB)**.
+Within the Azure Portal, click **New->Databases->Azure Cosmos DB**.
 
-![New DocumentDB](./assets/create-docdb-portal.png)
+![New Cosmos DB](./assets/create-cosmosdb-portal.png)
 
 Once you click this, you'll have to fill out a few fields as you see fit. 
 
-![DocumentDB Creation Form](./assets/create-docdb-formfill.png)
+![Cosmos DB Creation Form](./assets/create-cosmosdb-formfill.png)
 
-In our case, select the ID you'd like, subject to the constraints that it needs to be lowercase letters, numbers, or dashes. We will be using the DocumentDB SDK and not Mongo, so select DocumentDB as the NoSQL API. Let's use the same Resource Group as we used for our previous steps, and the same location, select _Pin to dashboard_ to make sure we keep track of it and it's easy to get back to, and hit Create.
+In our case, select the ID you'd like, subject to the constraints that it needs to be lowercase letters, numbers, or dashes. We will be using the Cosmos DB SDK and not Mongo, so select Cosmos DB as the NoSQL API. Let's use the same Resource Group as we used for our previous steps, and the same location, select _Pin to dashboard_ to make sure we keep track of it and it's easy to get back to, and hit Create.
 
 Once creation is complete, open the panel for your new database and select the _Keys_ sub-panel.
 
-![Keys sub-panel for DocumentDB](./assets/docdb-keys.png)
+![Keys sub-panel for Cosmos DB](./assets/docdb-keys.png)
 
 You'll need the **URI** and the **PRIMARY KEY** for your _TestCLI's_ `settings.json` file, so copy those into there and you're now ready to store images and data into the cloud.
 
@@ -98,23 +98,23 @@ Before running the app make sure to enter the Cognitive Services API keys in the
 
 Once the app processes a given directory it will cache the resuls in a `ImageInsights.json` file in that same folder, allowing you to look at that folder results again without having to call the various APIs. 
 
-## Exploring DocumentDB ##
+## Exploring Cosmos DB ##
 
 ### TestCLI ###
 
 We have implemented the main processing and storage code as a command-line/console application - both because I (Mike Lanzetta) am a terrible designer, and because this allows you to concentrate on the processing code without having to worry about event loops, forms, or any other UX related distractions. Feel free to add your own UX later - and as mentioned we accept Pull Requests :)
 
-Once you've set your Cognitive Services API keys, your Azure Blob Storage Connection String, and your DocumentDB Endpoint URI and Key in your _TestCLI's_ `settings.json`, you can run the _TestCLI_. See below's _"Loading Image Using TestCLI"_ if you'd like to run it first - for now it will just connect to Blob Storage and Document DB, and print out the actions it _should be_ taking for each file you give it to process. It's your job to implement those actions, which we walk you through below.
+Once you've set your Cognitive Services API keys, your Azure Blob Storage Connection String, and your Cosmos DB Endpoint URI and Key in your _TestCLI's_ `settings.json`, you can run the _TestCLI_. See below's _"Loading Image Using TestCLI"_ if you'd like to run it first - for now it will just connect to Blob Storage and Cosmos DB, and print out the actions it _should be_ taking for each file you give it to process. It's your job to implement those actions, which we walk you through below.
 
-### Implementing DocumentDBHelper ###
+### Implementing Cosmos DBHelper ###
 
-With `ImageProcessing.sln` from the `Starting` directory open, look in the `ImageStorageLibrary` project for the `DocumentDBHelper.cs` class. Take a look for `NotImplementedException` and you'll notice quite a few in the file. These are _suggested_ operations - feel free to implement different ones instead if they suit your needs. Many of the implementations can be found in the [Getting Started guide](https://docs.microsoft.com/en-us/azure/documentdb/documentdb-get-started).
+With `ImageProcessing.sln` from the `Starting` directory open, look in the `ImageStorageLibrary` project for the `Cosmos DBHelper.cs` class. Take a look for `NotImplementedException` and you'll notice quite a few in the file. These are _suggested_ operations - feel free to implement different ones instead if they suit your needs. Many of the implementations can be found in the [Getting Started guide](https://docs.microsoft.com/en-us/azure/Cosmos DB/Cosmos DB-get-started).
 
-Once you've implemented the operations in the helper, go to `TestCLI`'s `Util.cs` and notice that the `ImageMetadata` class has some gaps. We need to turn the `ImageInsights` we retrieve from Cognitive Services into appropriate Metadata to be stored into DocumentDB.
+Once you've implemented the operations in the helper, go to `TestCLI`'s `Util.cs` and notice that the `ImageMetadata` class has some gaps. We need to turn the `ImageInsights` we retrieve from Cognitive Services into appropriate Metadata to be stored into Cosmos DB.
 
-Finally, look in `Program.cs` and notice in `ProcessDirectoryAsync` there's a few `TODO` comments. First, we need to check if the image and metadata have already been uploaded - we can use `DocumentDBHelper` to find the document by ID - you should have implemented that above, to return `null` if the document doesn't exist. Next, if we've set `forceUpdate` or the image hasn't been processed before, we'll call the Cognitive Services using `ImageProcessor` from the `ImageProcessingLibrary` and retrieve the `ImageInsights`, which we add to our current `ImageMetadata`. 
+Finally, look in `Program.cs` and notice in `ProcessDirectoryAsync` there's a few `TODO` comments. First, we need to check if the image and metadata have already been uploaded - we can use `Cosmos DBHelper` to find the document by ID - you should have implemented that above, to return `null` if the document doesn't exist. Next, if we've set `forceUpdate` or the image hasn't been processed before, we'll call the Cognitive Services using `ImageProcessor` from the `ImageProcessingLibrary` and retrieve the `ImageInsights`, which we add to our current `ImageMetadata`. 
 
-Once that's complete, we can store our image - first the actual image into Blob Storage using our `BlobStorageHelper` instance, and then the `ImageMetadata` into Document DB using our `DocumentDBHelper` instance. If the document already existed (based on our previous check), we should update the existing document. Otherwise, we should be creating a new one.
+Once that's complete, we can store our image - first the actual image into Blob Storage using our `BlobStorageHelper` instance, and then the `ImageMetadata` into Cosmos DB using our `DocumentDBHelper` instance. If the document already existed (based on our previous check), we should update the existing document. Otherwise, we should be creating a new one.
 
 ### Loading Images Using TestCLI ###
 
@@ -135,7 +135,7 @@ By default, it will load your settings from `settings.json` (it builds it into t
 
     > .\bin\Debug\TestCLI.exe -process c:\my\image\directory
 
-Once it's done processing, you can query against your DocumentDB directly using _TestCLI_ as follows:
+Once it's done processing, you can query against your Cosmos DB directly using _TestCLI_ as follows:
 
     > .\bin\Debug\TestCLI.exe -query "select * from images"
 
@@ -143,11 +143,11 @@ Once it's done processing, you can query against your DocumentDB directly using 
 
 Head back to the portal and navigate to your Document DB instance. Now that you've loaded data into your collection, you can use Document DB's _Data Explorer_ (currently in Preview) to navigate your data. Click on _Data Explorer_, then _Documents_ and select a _Document_ to see the payload. 
 
-![DocumentDB Data Explorer](./assets/docdb-data-explorer.png)
+![Cosmos DB Data Explorer](./assets/docdb-data-explorer.png)
 
-Now click on _Query Explorer_ at left pane (below Data Explorer). It should start up with `SELECT * from c` in the query window. Let's play around with the query syntax - take a look at the [DocumentDB SQL syntax reference](https://msdn.microsoft.com/en-us/library/azure/dn782250.aspx). We know from the sample images that several contain a man or woman, so let's look for those:
+Now click on _Query Explorer_ at left pane (below Data Explorer). It should start up with `SELECT * from c` in the query window. Let's play around with the query syntax - take a look at the [Cosmos DB SQL syntax reference](https://msdn.microsoft.com/en-us/library/azure/dn782250.aspx). We know from the sample images that several contain a man or woman, so let's look for those:
 
-![DocumentDB Query](./assets/docdb-query-explorer.png)
+![Cosmos DB Query](./assets/cosmosdb-query-explorer.png)
 
 Feel free to experiment with the syntax.
 
@@ -175,19 +175,19 @@ Once creation is complete, open the panel for your new search service.
 
 An Index is the container for your data and is a similar concept to that of a SQL Server table.  Like a table has rows, an Index has documents.  Like a table that has fields, an Index has fields.  These fields can have properties that tell things such as if it is full text searchable, or if it is filterable.  You can populate content into Azure Search by programatically [pushing content](https://docs.microsoft.com/en-us/rest/api/searchservice/addupdate-or-delete-documents) or by using the [Azure Search Indexer](https://docs.microsoft.com/en-us/azure/search/search-indexer-overview) (which can crawl common datastores for data).
 
-For this lab, we will use the [Azure Search Indexer for DocumentDB](https://docs.microsoft.com/en-us/azure/search/search-howto-index-documentdb) to crawl the data in the the DocumentDB container. 
+For this lab, we will use the [Azure Search Indexer for Cosmos DB](https://docs.microsoft.com/en-us/azure/search/search-howto-index-Cosmos DB) to crawl the data in the the Cosmos DB container. 
 
 ![Import Wizard](./assets/AzureSearch-ImportData.png) 
 
-Within the Azure Search blade you just created, click **Import Data->Data Source->DocumentDB**.
+Within the Azure Search blade you just created, click **Import Data->Data Source->Cosmos DB**.
 
 ![Import Wizard for DocDB](./assets/AzureSearch-DataSource.png) 
 
-Once you click this, choose a name for the DocumentDB datasource and choose the DocumentDB account where your data resides as well as the cooresponding Container and Collections.  
+Once you click this, choose a name for the Cosmos DB datasource and choose the Cosmos DB account where your data resides as well as the cooresponding Container and Collections.  
 
 Click **OK**.
 
-At this point Azure Search will connect to your DocumentDB container and analyze a few documents to identify a default schema for your Azure Search Index.  After this is complete, you can set the properties for the fields as needed by your application.
+At this point Azure Search will connect to your Cosmos DB container and analyze a few documents to identify a default schema for your Azure Search Index.  After this is complete, you can set the properties for the fields as needed by your application.
 
 Update the Index name to: **images**
 
@@ -221,7 +221,7 @@ Click **OK** to complete the configuration of the Indexer.  You could set at sch
 
 Click **Advanced Options** and choose to **Base 64 Encode Keys** to ensure that the RID field only uses characters supported in the Azure Search key field.
 
-Click **OK, three times** to start the Indexer job that will start the importing of the data from the DocumentDB database.
+Click **OK, three times** to start the Indexer job that will start the importing of the data from the Cosmos DB database.
 
 ![Configure Indexer](./assets/AzureSearch-ConfigureIndexer.png) 
 
@@ -869,7 +869,7 @@ Third, try experimenting with more advanced Azure Search queries. Add term-boost
 ### Further resources ###
 
 - [Cognitive Services](https://www.microsoft.com/cognitive-services)
-- [Document DB](https://azure.microsoft.com/en-us/services/documentdb/)
+- [Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/)
 - [Azure Search](https://azure.microsoft.com/en-us/services/search/)
 - [Bot Developer Portal](http://dev.botframework.com)
 
