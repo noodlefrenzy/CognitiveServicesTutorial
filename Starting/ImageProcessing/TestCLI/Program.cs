@@ -104,17 +104,26 @@ namespace TestCLI
                 try
                 {
                     var fileName = Path.GetFileName(file);
-                    var existing = await documentDb.FindDocumentByIdAsync<ImageMetadata>(fileName);
+                    // TODO: Find out if the image metadata has already been stored into DocumentDB.
+                    ImageMetadata existing = null;
                     if (existing == null || forceUpdate)
                     {
                         Console.WriteLine($"Processing {file}");
                         // Resize (if needed) in order to reduce network latency and errors due to large files. Then store the result in a temporary file.
                         var resized = Util.ResizeIfRequired(file, 750);
                         Func<Task<Stream>> imageCB = async () => File.OpenRead(resized.Item2);
-                        ImageInsights insights = await ImageProcessor.ProcessImageAsync(imageCB, fileName);
-                        Util.AdjustFaceInsightsBasedOnResizing(insights, resized.Item1);
-                        Console.WriteLine($"Insights: {JsonConvert.SerializeObject(insights, Formatting.None)}");
-                        throw new NotImplementedException();
+                        ImageInsights insights = null;
+                        Console.Write("This is where we'd call Cognitive Services, ");
+                        // TODO: Gather insights from Cognitive Services into ImageInsights
+                        Console.Write("and store in Blob Storage, ");
+                        // Store the image in Blob Storage
+                        Console.Write("convert into ImageMetadata, ");
+                        // Convert insights into ImageMetadata
+                        Console.WriteLine("and write to DocumentDB.");
+                        // Store that metadata into DocumentDB
+                        // If it already exists, update the data. Otherwise, create a new document.
+
+                        // Console.WriteLine($"Insights: {JsonConvert.SerializeObject(insights, Formatting.None)}");
                     }
                     else
                     {

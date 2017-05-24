@@ -41,6 +41,11 @@ namespace TestCLI
         /// <param name="insights"></param>
         public void AddInsights(ImageInsights insights)
         {
+            // TODO - Implement
+            // Examine ImageInsights and the properties below. Feel free to alter what you store here as you see fit.
+            // However, remember that alterations to the schema extend all the way through to the Azure Search Index,
+            //  so you'll need to tune your Bot Framework code as well to ensure your Azure Search queries function
+            //  as intended.
             throw new NotImplementedException();
         }
 
@@ -84,18 +89,17 @@ namespace TestCLI
                 var height = origImg.Height;
                 if (width > maxDim || height > maxDim)
                 {
-                    double aspect = width / (double) height;
-                    if (width > maxDim)
+                    if (width >= height)
                     {
                         width = maxDim;
-                        height = (int) (height / aspect);
+                        height = (int)((float)(maxDim * origImg.Height) / ((float)origImg.Width));
                     }
-                    if (height > maxDim)
+                    else
                     {
-                        aspect = width / (double) height;
                         height = maxDim;
-                        width = (int) (height * aspect);
+                        width = (int)((float)(maxDim * origImg.Width) / ((float)origImg.Height));
                     }
+
                     var resizedImageFile = Path.GetTempFileName();
                     using (var resultingImg = (Image)(new Bitmap(origImg, new Size(width, height))))
                         resultingImg.Save(resizedImageFile, ImageFormat.Png);
