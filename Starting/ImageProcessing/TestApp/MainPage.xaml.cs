@@ -55,8 +55,10 @@ namespace TestApp
                 dynamic settings = new JsonSerializer().Deserialize(textReader);
 
                 FaceServiceHelper.ApiKey = settings.CognitiveServicesKeys.Face;
+                FaceServiceHelper.ApiKeyRegion = settings.CognitiveServicesKeys.FaceRegion;
                 EmotionServiceHelper.ApiKey = settings.CognitiveServicesKeys.Emotion;
                 VisionServiceHelper.ApiKey = settings.CognitiveServicesKeys.Vision;
+                VisionServiceHelper.ApiKeyRegion = settings.CognitiveServicesKeys.VisionRegion;
             }
         }
         private async void ProcessImagesClicked(object sender, RoutedEventArgs e)

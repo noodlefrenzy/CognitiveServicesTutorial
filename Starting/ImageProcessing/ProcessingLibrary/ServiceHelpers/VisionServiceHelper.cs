@@ -40,9 +40,26 @@ namespace ServiceHelpers
             }
         }
 
+        private static string apiKeyRegion;
+        public static string ApiKeyRegion
+        {
+            get { return apiKeyRegion; }
+            set
+            {
+                var changed = apiKeyRegion != value;
+                apiKeyRegion = value;
+                if (changed)
+                {
+                    InitializeVisionService();
+                }
+            }
+        }
+
         private static void InitializeVisionService()
         {
-            visionClient = new VisionServiceClient(apiKey);
+            visionClient = !string.IsNullOrEmpty(ApiKeyRegion) ?
+                new VisionServiceClient(ApiKey, string.Format("https://{0}.api.cognitive.microsoft.com/vision/v1.0", ApiKeyRegion)) :
+                new VisionServiceClient(ApiKey);
         }
 
         private static async Task<TResponse> RunTaskWithAutoRetryOnQuotaLimitExceededError<TResponse>(Func<Task<TResponse>> action)
