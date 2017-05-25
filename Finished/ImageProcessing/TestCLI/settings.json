@@ -1,8 +1,10 @@
 ﻿{
   "CognitiveServicesKeys": {
     "Face": "",
+    "FaceRegion": "",
     "Emotion": "",
-    "Vision": ""
+    "Vision": "",
+    "VisionRegion": ""
   },
   "AzureStorage": {
     "ConnectionString": "",
