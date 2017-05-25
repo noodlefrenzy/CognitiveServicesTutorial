@@ -68,8 +68,10 @@ namespace TestCLI
                 dynamic settings = new JsonSerializer().Deserialize(textReader);
 
                 FaceServiceHelper.ApiKey = settings.CognitiveServicesKeys.Face;
+                FaceServiceHelper.ApiKeyRegion = settings.CognitiveServicesKeys.FaceRegion;
                 EmotionServiceHelper.ApiKey = settings.CognitiveServicesKeys.Emotion;
                 VisionServiceHelper.ApiKey = settings.CognitiveServicesKeys.Vision;
+                VisionServiceHelper.ApiKeyRegion = settings.CognitiveServicesKeys.VisionRegion;
 
                 BlobStorageHelper.ConnectionString = settings.AzureStorage.ConnectionString;
                 BlobStorageHelper.ContainerName = settings.AzureStorage.BlobContainer;

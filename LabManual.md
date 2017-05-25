@@ -46,7 +46,9 @@ Once you have created your new API subscription, you can grab the keys from the 
 
 ![Cognitive API Key](./assets/cognitive-keys.PNG)
 
-We'll also be using other APIs within the Computer Vision family, so take this opportunity to create API keys for the _Emotion_ and _Face_ APIs as well. They are created in the same fashion as above, and should re-use the same Resource Group you've created. _Pin to Dashboard_, and then add those keys to your `settings.json` files.
+We'll also be using other APIs within the Computer Vision family, so take this opportunity to create API keys for the _Emotion_ and _Face_ APIs as well. They are created in the same fashion as above, and should re-use the same Resource Group you've created. _Pin to Dashboard_, and then add those keys to your `settings.json` files. 
+
+As you will notice in the previous steps, the _Face_ and _Vision_ APIs have support for multiple Azure Regions. Since each region has a different end point, once you select the region for your keys you will need to enter the region in the `settings.json` files as well. The region value should go in the _FaceRegion_ and _VisionRegion_ fields in the `settings.json` file (the possible values are "eastus2", "southeastasia", "westcentralus", "westeurope" and "westus").
 
 Since we'll be using [LUIS](https://www.microsoft.com/cognitive-services/en-us/language-understanding-intelligent-service-luis) later in the tutorial, let's take this opportunity to create our LUIS subscription here as well. It's created in the exact same fashion as above, but choose Language Understanding Intelligent Service from the API drop-down, and re-use the same Resource Group you created above. Once again, _Pin to Dashboard_ so once we get to that stage of the tutorial you'll find it easy to get access.  
 
